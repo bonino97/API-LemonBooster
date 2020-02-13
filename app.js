@@ -3,6 +3,12 @@ const argv = require('./config/yargs').argv;
 const express = require('express');
 const app = express();
 const mongoose = require('mongoose');
+var bodyParser = require('body-parser');
+
+
+// PARSE application/x-www-form-urlencoded
+app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.json())
 
 
 app.get('/', function(req,res){
@@ -15,7 +21,7 @@ app.get('/', function(req,res){
 //                              MONGO DB
 ///#############################################################################
 
-mongoose.connect('mongodb://localhost:27017/lemon-booster', { useNewUrlParser: true }, (err, res) => {
+mongoose.connection.openUri('mongodb://localhost:27017/lemon-booster', { useNewUrlParser: true }, (err, res) => {
     
     if(err){
         throw err;
