@@ -56,9 +56,9 @@ function executeFindomain(url, resolvable){
     try{
 
         if(resolvable){
-            syntax = `findomain -t ${url} -r -o ${date}-${url}.txt`;
+            syntax = `findomain -t ${url} -r -u ${date}-${url}.txt`;
         } else {
-            syntax = `findomain -t ${url} -o ${date}-${url}.txt`;
+            syntax = `findomain -t ${url} -u ${date}-${url}.txt`;
         }
 
         shell.echo(syntax);
