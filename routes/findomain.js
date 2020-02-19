@@ -31,13 +31,13 @@ app.post('/', function(req,res){
         findomain.resolvable = false;
         findomain.syntax = executeFindomain(body.url, false);
     }
-
+d
     findomain.save((err,findoSaved) => {
         
         if(!findomain.url){
             return res.status(400).json({
                 ok: false,
-                mensaje: 'Findomain URL not exists.',
+                message: 'Findomain URL not exists.',
                 errors: {message: 'Findomain URL not exists'}
             });
         }
@@ -52,13 +52,15 @@ app.post('/', function(req,res){
 })
 
 function executeFindomain(url, resolvable){
+
     let syntax = String;
+    
     try{
 
         if(resolvable){
             syntax = `findomain -t ${url} -r -u ${date}-${url}.txt`;
         } else {
-            syntax = `findomain -t ${url} -u ${date}-${url}.txt`;
+            syntax = `findomain -t ${url} -u findomain-${url}-${date}.txt`;
         }
 
         shell.echo(syntax);

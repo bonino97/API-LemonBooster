@@ -42,10 +42,12 @@ mongoose.connection.openUri('mongodb://localhost:27017/lemon-booster', { useNewU
 ///#############################################################################
 
 //IMPORT
+var dirsearchRoutes = require('./routes/dirsearch');
 var findomainRoutes = require('./routes/findomain');
 var appRoutes = require('./routes/app');
 
 //ROUTE
+app.use('/Dirsearch', dirsearchRoutes);
 app.use('/Findomain', findomainRoutes);
 app.use('/', appRoutes);
 
