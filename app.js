@@ -6,9 +6,27 @@ const mongoose = require('mongoose');
 var bodyParser = require('body-parser');
 
 
-// PARSE application/x-www-form-urlencoded
+
+///#############################################################################
+///              PARSE application/x-www-form-urlencoded
+///#############################################################################
+
+
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
+
+
+///#############################################################################
+//                              CORS
+///#############################################################################
+
+app.use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*"); // DOMINIO PERMITIDO PARA INTERACTUAR CON EL SVR
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    res.header("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE, OPTIONS");
+    next();
+  });
+
 
 
 app.get('/', function(req,res){
@@ -44,11 +62,14 @@ mongoose.connection.openUri('mongodb://localhost:27017/lemon-booster', { useNewU
 //IMPORT
 var dirsearchRoutes = require('./routes/dirsearch');
 var findomainRoutes = require('./routes/findomain');
+var programRoutes = require('./routes/program');
 var appRoutes = require('./routes/app');
 
-//ROUTE
+
+//ROUTES
 app.use('/Dirsearch', dirsearchRoutes);
 app.use('/Findomain', findomainRoutes);
+app.use('/Program', programRoutes);
 app.use('/', appRoutes);
 
 ///#############################################################################
