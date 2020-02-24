@@ -34,7 +34,7 @@ function getFindomain(req,res){
 
 function callFindomain(req, res){
     var body = req.body;
-    
+
     Program.findById()
 
     var findomain = new Findomain({
@@ -79,9 +79,9 @@ function executeFindomain(url, resolvable){
     try{
 
         if(resolvable){
-            syntax = `findomain -t ${url} -r -u ${date}-${url}.txt`;
+            syntax = `findomain -t ${url} -r -u results/findomain/${date}-${url}.txt`;
         } else {
-            syntax = `findomain -t ${url} -u findomain-${url}-${date}.txt`;
+            syntax = `findomain -t ${url} -u results/findomain/findomain-${url}-${date}.txt`;
         }
 
         shell.echo(syntax);
