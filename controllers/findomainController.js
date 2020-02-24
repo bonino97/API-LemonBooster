@@ -8,6 +8,7 @@ const shell = require('shelljs');
 //MODELS 
 
 const Findomain = require('../models/findomain');
+const Program = require('../models/program');
 
 //CONSTS
 
@@ -19,6 +20,10 @@ let date = dateFormat(new Date(), "yyyy-mm-dd-HH:MM");
 //=====================================================================
 
 function getFindomain(req,res){
+
+    var idProgram = req.params.id;
+    console.log(idProgram);
+
     res.json('GET Findomain Enumeration');
 }
 
@@ -29,10 +34,12 @@ function getFindomain(req,res){
 
 function callFindomain(req, res){
     var body = req.body;
-    var id = req.params;
+    
+    Program.findById()
 
     var findomain = new Findomain({
-        url: body.url
+        url: body.url,
+        program: body.program
     })
 
     if(body.resolvable === '1'){

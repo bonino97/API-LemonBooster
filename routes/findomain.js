@@ -14,7 +14,7 @@ const FindomainController = require('../controllers/findomainController');
 app.get('/', FindomainController.getFindomain);
 
 //EXECUTE FINDOMAIN
-app.post('/:id', FindomainController.callFindomain)
+app.post('/', FindomainController.callFindomain)
 
 
 
