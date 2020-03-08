@@ -4,6 +4,8 @@
 
 const dateFormat = require('dateformat');
 const shell = require('shelljs');
+const fs = require('fs');
+
 
 //MODELS 
 
@@ -20,10 +22,6 @@ let date = dateFormat(new Date(), "yyyy-mm-dd-HH:MM");
 //=====================================================================
 
 function getFindomain(req,res){
-
-    var idProgram = req.params.id;
-    console.log(idProgram);
-
     res.json('GET Findomain Enumeration');
 }
 
@@ -35,12 +33,29 @@ function getFindomain(req,res){
 function callFindomain(req, res){
     var body = req.body;
 
-    Program.findById()
+    
 
     var findomain = new Findomain({
         url: body.url,
         program: body.program
     })
+
+    Program.findById(findomain.program, (err, program) => {
+
+        if(err){
+            return res.status(400).json({
+                ok: false,
+                message: 'Error getting program.',
+                errors: err 
+            });
+        }
+
+
+        /// SEGUIR ACA CON EL CREADO DE LA CARPETA  + GUARDADO DE ARCHIVOS.
+        /// USAR FS PARA VERIFICAR LA EXISTENCIA DE LA CARPETA O PARA CREAR UNA NUEVA 
+        /// 
+
+    });
 
     if(body.resolvable === '1'){
         findomain.resolvable = true;
@@ -79,9 +94,9 @@ function executeFindomain(url, resolvable){
     try{
 
         if(resolvable){
-            syntax = `findomain -t ${url} -r -u results/findomain/${date}-${url}.txt`;
+            syntax = `findomain -t ${url} -r -u ./results/findomain/findomain-${url}-${date}.txt`;
         } else {
-            syntax = `findomain -t ${url} -u results/findomain/findomain-${url}-${date}.txt`;
+            syntax = `findomain -t ${url} -u ./results/findomain/findomain-${url}-${date}.txt`;
         }
 
         shell.echo(syntax);
