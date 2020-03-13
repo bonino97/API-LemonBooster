@@ -1,6 +1,6 @@
 const fs = require('fs');
 
-fs.readFile('../lists/dicc.txt', 'utf-8', (error, data)=>{
+fs.readFile('./test/dicc.txt', 'utf-8', (error, data)=>{
     
     if(error){
         throw error;

@@ -11,10 +11,12 @@ const fs = require('fs');
 
 const Findomain = require('../models/findomain');
 const Program = require('../models/program');
+const Subdomain = require('../models/subdomain');
 
 //CONSTS
 
 let date = dateFormat(new Date(), "yyyy-mm-dd-HH:MM");
+
 
 
 //=====================================================================
@@ -87,25 +89,57 @@ function callFindomain(req, res){
 // EXECUTE FINDOMAIN
 //=====================================================================
 
-function executeFindomain(url, resolvable){
+function executeFindomain(scope, resolvable){
 
     let syntax = String;
-    
+    let url = scope.trim();
+    let subdomainsFolder = `./results/findomain/findomain-${url}-${date}.txt`;
+
+    let subdomainsTesting = `./results/findomain/testing.txt`;
+
+
     try{
 
         if(resolvable){
-            syntax = `findomain -t ${url} -r -u ./results/findomain/findomain-${url}-${date}.txt`;
+            syntax = `findomain -t ${url} -r -u ${subdomainsFolder}`;
         } else {
-            syntax = `findomain -t ${url} -u ./results/findomain/findomain-${url}-${date}.txt`;
+            syntax = `findomain -t ${url} -u ${subdomainsFolder}`;
         }
 
         shell.echo(syntax);
+
+        saveSubdomains(subdomainsTesting);
     }
     catch(err){
         console.log(err);
     }
     return syntax.toString();
 }
+
+function saveSubdomains(subdomainsFolder){
+    let subdomainsArray = [];
+
+
+    let subdomains = new Subdomain({
+        subdomain: []
+    })
+    
+
+    fs.readFile(subdomainsFolder, 'utf-8', (error, data) => {
+    
+        if(error){
+            throw error;
+        }
+
+        subdomainsArray.push(data);
+
+        subdomainsArray.forEach(element => {
+            subdomains.subdomain.push(element);
+        });
+        subdomains.save();
+    });
+}
+
 
 module.exports = {
     getFindomain,
