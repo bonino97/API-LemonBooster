@@ -51,12 +51,6 @@ function callFindomain(req, res){
                 errors: err 
             });
         }
-
-
-        /// SEGUIR ACA CON EL CREADO DE LA CARPETA  + GUARDADO DE ARCHIVOS.
-        /// USAR FS PARA VERIFICAR LA EXISTENCIA DE LA CARPETA O PARA CREAR UNA NUEVA 
-        /// 
-
     });
 
     if(body.resolvable === '1'){
@@ -106,9 +100,9 @@ function executeFindomain(scope, resolvable){
             syntax = `findomain -t ${url} -u ${subdomainsFolder}`;
         }
 
-        shell.echo(syntax);
+        shell.exec(syntax);
 
-        saveSubdomains(subdomainsTesting);
+        saveSubdomains(subdomainsFolder);
     }
     catch(err){
         console.log(err);
@@ -118,10 +112,11 @@ function executeFindomain(scope, resolvable){
 
 function saveSubdomains(subdomainsFolder){
     let subdomainsArray = [];
-
+    let body = req.body;
 
     let subdomains = new Subdomain({
-        subdomain: []
+        subdomain: [],
+        program: body.program
     })
     
 
@@ -132,7 +127,7 @@ function saveSubdomains(subdomainsFolder){
         }
 
         subdomainsArray.push(data);
-
+        console.log(`All Subdomains Saved in ${subdomainsFolder}`);
         subdomainsArray.forEach(element => {
             subdomains.subdomain.push(element);
         });
