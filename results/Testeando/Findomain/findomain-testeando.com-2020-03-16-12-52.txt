@@ -1,0 +1,3 @@
+mail.testeando.com
+www.testeando.com
+admin.testeando.com

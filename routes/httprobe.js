@@ -11,9 +11,9 @@ const HttprobeController = require('../controllers/httprobeController');
 
 
 // TEST WORKS
-app.get('/', HttprobeController.getHttprobe);
+app.get('/:id', HttprobeController.getHttprobe);
 
-//EXECUTE FINDOMAIN
+//EXECUTE HTTPROBE
 app.post('/', HttprobeController.callHttprobe)
 
 

@@ -9,7 +9,6 @@ const fs = require('fs');
 //MODELS
 
 const Httprobe = require('../models/httprobe');
-const Findomain = require('../models/findomain');
 const Program = require('../models/program');
 const Subdomain = require('../models/subdomain');
 
@@ -19,11 +18,40 @@ let date = dateFormat(new Date(), "yyyy-mm-dd-HH-MM");
 
 
 //=====================================================================
-// TEST ENDPOINTS
+// OBTAIN HTTPROBE PROGRAM WITH PROGRAMID
 //=====================================================================
 
 function getHttprobe(req,res){
-    res.json('GET Httprobe - Subdomain Response Scanner.');
+    let id = req.params.id;
+
+    Program.findById(id, (err, program) => {
+
+        let subdomainDir = `${program.programDir}Findomain/`;
+
+        if(err){
+            return res.status(400).json({
+                ok: false,
+                message: 'Error getting program.',
+                errors: err 
+            });
+        }
+
+        if(!program){
+            return res.status(500).json({
+                ok: false,
+                message: 'Doesnt exist program with this id.' ,
+                error: { message: 'Doesnt exist program with this id.' }
+            });
+        }
+
+        let subdomainFiles = getHttprobeFiles(subdomainDir);
+
+        return res.status(200).json({
+            ok: true,
+            subdomainFiles
+        });
+
+    });
 }
 
 
@@ -36,17 +64,14 @@ function callHttprobe(req,res){
     const body = req.body;
 
     const httprobe = new Httprobe({
-        subdomain: body.subdomain,
         program: body.program,
-        httprobeDirectory: '',
-        httprobeFiles: []
+        findoFile: body.file,
+        httprobeDirectory: ''
     });
     
-    let subdomainsArray = [];
 
     Program.findById(httprobe.program, (err, program) => {
 
-        let programUrl = program.domain;
         let programDir = program.programDir;
 
         if(err){
@@ -57,9 +82,14 @@ function callHttprobe(req,res){
             });
         }
         
-        Subdomain.findById(httprobe.subdomain, (err, subdomain) => {
+        
 
-            let subdomainsDirectory = subdomain.subdomainsDirectory;
+        Subdomain.find({subdomainFile: {$regex: /findoFile$/}}, (err, subdomain) => {
+
+
+            let subdomainsDirectory = `${program.programDir}Findomain/`;
+            
+            console.log(subdomain)
 
             if(err){
                 return res.status(400).json({
@@ -73,20 +103,19 @@ function callHttprobe(req,res){
             //subdomainsArray = subdomains.toString().split('\n'); // IMPORTANT BUT NOT NOW.
 
             httprobe.url = subdomain.subdomain;
-            httprobe.httprobeFiles = getHttprobeFiles(subdomainsDirectory);
             httprobe.httprobeDirectory = saveHttprobeDirectory(programDir);
             httprobe.syntax = executeHttprobe(httprobe, subdomainsDirectory);
             httprobe.save();
 
             res.json(httprobe);
-        });
+        }).limit(1);
     });
 }
 
 function executeHttprobe(httprobe, subdomainsDirectory){
 
     let syntax = String;
-    let file = `${subdomainsDirectory}${httprobe.httprobeFiles[0]}`;
+    let file = `${subdomainsDirectory}${httprobe.findoFile}`;
 
     syntax = `cat ${file} | httprobe | tee ${httprobe.httprobeDirectory}httprobe-${httprobe.url}-${date}.txt`;
 

@@ -1,5 +1,4 @@
-const shell = require('shelljs');
-const argv = require('./config/yargs').argv;
+
 const express = require('express');
 const app = express();
 const mongoose = require('mongoose');
