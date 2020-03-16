@@ -3,8 +3,11 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
 var subdomainSchema = new Schema({
-    subdomain: { type: Array, required: [true, 'Subdomain Required']},
-    program: { type: Schema.ObjectId, ref: 'Program' }
+    
+    program: { type: Schema.ObjectId, ref: 'Program' },
+    subdomain: { type: String, required: [true, 'Subdomain Required']},
+    subdomainsDirectory: { type: String, required: [true, 'Subdomain Directory Required']},
+    subdomainFile: { type: String, required: [true, 'Subdomain File Required']}
 });
 
 

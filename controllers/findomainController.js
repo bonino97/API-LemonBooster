@@ -15,7 +15,7 @@ const Subdomain = require('../models/subdomain');
 
 //CONSTS
 
-let date = dateFormat(new Date(), "yyyy-mm-dd-HH:MM");
+let date = dateFormat(new Date(), "yyyy-mm-dd-HH-MM");
 
 
 
@@ -35,12 +35,12 @@ function getFindomain(req,res){
 function callFindomain(req, res){
     var body = req.body;
 
-    
-
     var findomain = new Findomain({
         url: body.url,
         program: body.program
-    })
+    });
+
+    
 
     Program.findById(findomain.program, (err, program) => {
 
@@ -51,29 +51,29 @@ function callFindomain(req, res){
                 errors: err 
             });
         }
-    });
 
-    if(body.resolvable === '1'){
-        findomain.resolvable = true;
-        findomain.syntax = executeFindomain(body.url, true);
-    } else {
-        findomain.resolvable = false;
-        findomain.syntax = executeFindomain(body.url, false);
-    }
-    
-    findomain.save((err,findoSaved) => {
-        
-        if(!findomain.url){
-            return res.status(400).json({
-                ok: false,
-                message: 'Findomain URL not exists.',
-                errors: {message: 'Findomain URL not exists'}
-            });
+        if(body.resolvable === '1'){
+            findomain.resolvable = true;
+            findomain.syntax = executeFindomain(body.url, findomain.program, program.programDir, true);
+        } else {
+            findomain.resolvable = false;
+            findomain.syntax = executeFindomain(body.url, findomain.program, program.programDir, false);
         }
         
-        res.status(200).json({
-            ok:true,
-            findomain: findoSaved,
+        findomain.save((err,findoSaved) => {
+            
+            if(!findomain.url){
+                return res.status(400).json({
+                    ok: false,
+                    message: 'Findomain URL not exists.',
+                    errors: {message: 'Findomain URL not exists'}
+                });
+            }
+            
+            res.status(200).json({
+                ok:true,
+                findomain: findoSaved,
+            });
         });
     });
 }
@@ -83,26 +83,31 @@ function callFindomain(req, res){
 // EXECUTE FINDOMAIN
 //=====================================================================
 
-function executeFindomain(scope, resolvable){
+function executeFindomain(scope, program, programDir, resolvable){
 
     let syntax = String;
     let url = scope.trim();
-    let subdomainsFolder = `./results/findomain/findomain-${url}-${date}.txt`;
+    let findomainDir = `${programDir}Findomain/`;
+    let file = `${findomainDir}findomain-${url}-${date}.txt`;
 
-    let subdomainsTesting = `./results/findomain/testing.txt`;
 
+    if( fs.existsSync(findomainDir) ){
+        console.log('Findomain Directory Exists.');
+    } else { 
+        shell.exec(`mkdir ${findomainDir}`)
+    }
 
     try{
 
         if(resolvable){
-            syntax = `findomain -t ${url} -r -u ${subdomainsFolder}`;
+            syntax = `findomain -t ${url} -r -u ${file}`;
         } else {
-            syntax = `findomain -t ${url} -u ${subdomainsFolder}`;
+            syntax = `findomain -t ${url} -u ${file}`;
         }
 
         shell.exec(syntax);
 
-        saveSubdomains(subdomainsFolder);
+        saveSubdomains(program, findomainDir, file, url);
     }
     catch(err){
         console.log(err);
@@ -110,29 +115,30 @@ function executeFindomain(scope, resolvable){
     return syntax.toString();
 }
 
-function saveSubdomains(subdomainsFolder){
+function saveSubdomains(program, programDir, file, url){
     let subdomainsArray = [];
-    let body = req.body;
-
     let subdomains = new Subdomain({
-        subdomain: [],
-        program: body.program
+        subdomain: url,
+        program: program,
+        subdomainsDirectory: programDir,
+        subdomainFile: file
     })
     
+    subdomains.save();
 
-    fs.readFile(subdomainsFolder, 'utf-8', (error, data) => {
+    // fs.readFile(file, 'utf-8', (error, data) => {
     
-        if(error){
-            throw error;
-        }
+    //     if(error){
+    //         throw error;
+    //     }
 
-        subdomainsArray.push(data);
-        console.log(`All Subdomains Saved in ${subdomainsFolder}`);
-        subdomainsArray.forEach(element => {
-            subdomains.subdomain.push(element);
-        });
-        subdomains.save();
-    });
+    //     subdomainsArray.push(data);
+    //     console.log(`All Subdomains Saved in ${file}`);
+    //     subdomainsArray.forEach(element => {
+    //         subdomains.subdomain.push(element);
+    //     });
+    //     subdomains.save();
+    // });
 }
 
 

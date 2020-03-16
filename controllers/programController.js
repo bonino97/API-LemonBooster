@@ -5,6 +5,11 @@
 const Program = require('../models/program');
 
 
+//LIBRARIES
+
+const shell = require('shelljs');
+const fs = require('fs');
+
 //=====================================================================
 // Obtain all Programs
 //=====================================================================
@@ -64,13 +69,22 @@ function getProgram(req,res){
 //=====================================================================
 
 function addProgram(req,res){
-    var body = req.body;
+    let body = req.body;
+    
+    let programDir = `./results/${body.name}/`;
 
-    var program = new Program({
+    let program = new Program({
         name: body.name,
         domain: body.domain,
-        scope: body.scope
+        scope: body.scope,
+        programDir: programDir
     });
+
+    if( fs.existsSync(programDir ) ){
+        console.log('Program Directory Exists.');
+    } else { 
+        shell.exec(`mkdir ${programDir}`)
+    }
 
     program.save((err,programSaved)=>{
         
