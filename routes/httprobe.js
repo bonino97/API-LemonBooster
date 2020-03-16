@@ -11,6 +11,9 @@ const HttprobeController = require('../controllers/httprobeController');
 
 
 // TEST WORKS
+app.get('/', HttprobeController.testHttprobe);
+
+// GET HTTPROBE INSTANCE
 app.get('/:id', HttprobeController.getHttprobe);
 
 //EXECUTE HTTPROBE

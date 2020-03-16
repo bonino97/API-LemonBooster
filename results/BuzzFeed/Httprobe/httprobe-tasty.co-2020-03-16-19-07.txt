@@ -1,0 +1,12 @@
+http://api.tasty.co
+http://vid.tasty.co
+http://stage.tasty.co
+http://www.tasty.co
+https://vid.tasty.co
+https://api.tasty.co
+http://horizon.tasty.co
+http://link.tasty.co
+https://stage.tasty.co
+https://www.tasty.co
+https://horizon.tasty.co
+https://link.tasty.co

@@ -62,6 +62,14 @@ function callFindomain(req, res){
         
         findomain.save((err,findoSaved) => {
             
+            if(err){
+                return res.status(400).json({
+                    ok: false,
+                    message: 'Error executing Findomain.',
+                    errors: err 
+                });
+            }
+
             if(!findomain.url){
                 return res.status(400).json({
                     ok: false,
@@ -72,7 +80,8 @@ function callFindomain(req, res){
             
             res.status(200).json({
                 ok:true,
-                findomain: findoSaved,
+                message: 'Findomain Executed Correctly.',
+                findomain: findoSaved
             });
         });
     });

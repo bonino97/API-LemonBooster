@@ -16,6 +16,14 @@ const Subdomain = require('../models/subdomain');
 
 let date = dateFormat(new Date(), "yyyy-mm-dd-HH-MM");
 
+//=====================================================================
+// TEST HTTPROBE ENDPOINT
+//=====================================================================
+
+function testHttprobe(req,res){
+    res.status(200).json('GET HTTProbe Works!')
+}
+
 
 //=====================================================================
 // OBTAIN HTTPROBE PROGRAM WITH PROGRAMID
@@ -68,48 +76,63 @@ function callHttprobe(req,res){
         findoFile: body.file,
         httprobeDirectory: ''
     });
-    
 
-    Program.findById(httprobe.program, (err, program) => {
+    try {
 
-        let programDir = program.programDir;
-
-        if(err){
-            return res.status(400).json({
-                ok: false,
-                message: 'Error getting Program.',
-                errors: err 
-            });
-        }
-        
-        
-
-        Subdomain.find({subdomainFile: {$regex: /findoFile$/}}, (err, subdomain) => {
-
-
-            let subdomainsDirectory = `${program.programDir}Findomain/`;
-            
-            console.log(subdomain)
+        Program.findById(httprobe.program, (err, program) => {
 
             if(err){
                 return res.status(400).json({
                     ok: false,
-                    message: 'Error getting Subdomain.',
+                    message: 'Error getting Program.',
                     errors: err 
                 });
             }
 
+            let programDir = program.programDir;            
+            let subdomainsDirectory = `${program.programDir}Findomain/`;
+            let fileName = httprobe.findoFile.split('-');
             
-            //subdomainsArray = subdomains.toString().split('\n'); // IMPORTANT BUT NOT NOW.
 
-            httprobe.url = subdomain.subdomain;
+            httprobe.url = fileName[1];
             httprobe.httprobeDirectory = saveHttprobeDirectory(programDir);
             httprobe.syntax = executeHttprobe(httprobe, subdomainsDirectory);
-            httprobe.save();
+            
+            httprobe.save((err,httprobeSaved) => {
+                
+                if(err){
+                    return res.status(400).json({
+                        ok: false,
+                        message: 'Error executing Findomain.',
+                        errors: err 
+                    });
+                }
 
-            res.json(httprobe);
-        }).limit(1);
-    });
+                if(!httprobe){
+                    return res.status(400).json({
+                        ok: false,
+                        message: 'HTTProbe doesnt exists.',
+                        errors: {message: 'HTTProbe doesnt exists.'}
+                    });
+                }
+
+                console.log('################################################');
+            
+                console.log('###############-HTTProbe Finish.-###############');
+                
+                console.log('################################################');
+    
+                res.status(200).json({
+                    ok: true,
+                    message: 'HTTProbe Executed Correctly.',
+                    httprobe: httprobeSaved
+                });
+            });
+        });
+
+    } catch(err) {
+        console.log(err);
+    }
 }
 
 function executeHttprobe(httprobe, subdomainsDirectory){
@@ -117,9 +140,9 @@ function executeHttprobe(httprobe, subdomainsDirectory){
     let syntax = String;
     let file = `${subdomainsDirectory}${httprobe.findoFile}`;
 
-    syntax = `cat ${file} | httprobe | tee ${httprobe.httprobeDirectory}httprobe-${httprobe.url}-${date}.txt`;
+    syntax = `cat ${file} | ~/go/bin/httprobe | tee -a ${httprobe.httprobeDirectory}httprobe-${httprobe.url}-${date}.txt`;
 
-    shell.echo(syntax);
+    shell.exec(syntax);
 
     return syntax;
 
@@ -150,5 +173,6 @@ function saveHttprobeDirectory(programDir){
 
 module.exports = {
     getHttprobe,
-    callHttprobe
+    callHttprobe,
+    testHttprobe
 }
