@@ -71,7 +71,9 @@ function getProgram(req,res){
 function addProgram(req,res){
     let body = req.body;
     
-    let programDir = `./results/${body.name}/`;
+    let resultDir = `./results/`;
+
+    let programDir = `${resultDir}${body.name}/`;
 
     let program = new Program({
         name: body.name,
@@ -79,6 +81,12 @@ function addProgram(req,res){
         scope: body.scope,
         programDir: programDir
     });
+
+    if( fs.existsSync(resultDir ) ){
+        console.log('Results Directory Exists.');
+    } else { 
+        shell.exec(`mkdir ${resultDir}`)
+    }
 
     if( fs.existsSync(programDir ) ){
         console.log('Program Directory Exists.');
