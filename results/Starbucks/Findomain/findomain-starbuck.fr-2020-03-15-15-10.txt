@@ -1,3 +1,0 @@
-hostmaster.hostmaster.starbuck.fr
-hostmaster.starbuck.fr
-www.starbuck.fr
