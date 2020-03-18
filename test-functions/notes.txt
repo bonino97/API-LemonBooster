@@ -1,0 +1,1 @@
+./subjack -w ~/recon/starbucks/all-dom/subdomains2.starbucks.txt -ssl -c ~/go/src/github.com/haccer/subjack/fingerprints.json -a 
