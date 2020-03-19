@@ -15,7 +15,7 @@ const Program = require('../models/program');
 let date = dateFormat(new Date(), "yyyy-mm-dd-HH-MM");
 
 //=====================================================================
-// TEST HTTPROBE ENDPOINT
+// TEST SUBJACK ENDPOINT
 //=====================================================================
 
 function testSubjack(req,res){
@@ -24,7 +24,7 @@ function testSubjack(req,res){
 
 
 //=====================================================================
-// OBTAIN HTTPROBE PROGRAM WITH PROGRAMID
+// OBTAIN SUBJACK PROGRAM WITH PROGRAMID
 //=====================================================================
 
 function getSubjack(req,res){
@@ -62,7 +62,7 @@ function getSubjack(req,res){
 
 
 //=====================================================================
-// CALL HTTPROBE EXECUTE FUNCTION
+// CALL SUBJACK EXECUTE FUNCTION
 //=====================================================================
 
 function callSubjack(req,res){
@@ -157,13 +157,13 @@ function executeSubjack(subjack, subdomainsDirectory){
 
 function getSubjackFiles(subdomainsDirectory) {
 
-    let httprobeArray = [];
+    let findomainArray = [];
 
     fs.readdirSync(subdomainsDirectory).forEach(files => {
-        httprobeArray.push(files);
+        findomainArray.push(files);
     });
 
-    return(httprobeArray);
+    return(findomainArray);
 }
 
 function saveSubjackDirectory(programDir){

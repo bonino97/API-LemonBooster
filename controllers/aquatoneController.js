@@ -25,6 +25,11 @@ function testAquatone(req,res){
     res.status(200).json('GET Aquatone Works!')
 }
 
+//=====================================================================
+// OBTAIN AQUATONE PROGRAM WITH PROGRAMID
+//=====================================================================
+
+
 function getAquatone(req,res){
     let id = req.params.id;
     
@@ -130,9 +135,6 @@ function callAquatone(req,res){
     catch(err){
         console.log(err);
     }
-
-
-
 }
 
 function saveAquatoneDirectory(programDir){

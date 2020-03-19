@@ -10,7 +10,6 @@ const fs = require('fs');
 
 const Httprobe = require('../models/httprobe');
 const Program = require('../models/program');
-const Subdomain = require('../models/subdomain');
 
 //CONSTS
 
