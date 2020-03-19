@@ -59,6 +59,7 @@ mongoose.connection.openUri('mongodb://localhost:27017/lemon-booster', { useNewU
 ///#############################################################################
 
 //IMPORT
+var subjackRoutes = require('./routes/subjack');
 var aquatoneRoutes = require('./routes/aquatone');
 var httprobeRoutes = require('./routes/httprobe');
 var dirsearchRoutes = require('./routes/dirsearch');
@@ -68,6 +69,7 @@ var appRoutes = require('./routes/app');
 
 
 //ROUTES
+app.use('/Subjack', subjackRoutes);
 app.use('/Aquatone', aquatoneRoutes);
 app.use('/Dirsearch', dirsearchRoutes);
 app.use('/Httprobe', httprobeRoutes);

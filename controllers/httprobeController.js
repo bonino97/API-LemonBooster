@@ -96,6 +96,14 @@ function callHttprobe(req,res){
 
             httprobe.url = fileName[1];
             httprobe.httprobeDirectory = saveHttprobeDirectory(programDir);
+
+            
+            console.log('################################################');
+            
+            console.log('###############-HTTProbe Started.-###############');
+            
+            console.log('################################################');
+
             httprobe.syntax = executeHttprobe(httprobe, subdomainsDirectory);
             
             httprobe.save((err,httprobeSaved) => {
