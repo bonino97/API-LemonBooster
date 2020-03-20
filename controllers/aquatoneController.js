@@ -88,8 +88,6 @@ function callAquatone(req,res){
                 });
             }
 
-            console.log(program);
-
             let programDir = program.programDir;  
             let httprobeDirectory = `${program.programDir}Httprobe/`;
             let fileName = aquatone.httprobeFile.split('-');

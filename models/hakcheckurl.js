@@ -7,6 +7,7 @@ var hakcheckurlSchema = new Schema({
     url: { type: String, required: [true, 'URL Required']},
     httprobeFile: { type: String, required: [true, 'Httprobe File Required']},
     hakcheckurlDirectory: { type: String, required: [true, 'Hakcheckurl Directory Required']},
+    hakcheckurlFiles: { type: Array },
     syntax: { type: String }
 });
 

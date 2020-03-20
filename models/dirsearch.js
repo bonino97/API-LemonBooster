@@ -4,8 +4,15 @@ var Schema = mongoose.Schema;
 
 
 var dirsearchSchema = new Schema({
-    url: { type: String, required: [true, 'URL Required'] },
-    syntax: { type: String }
+    program: { type: Schema.ObjectId, ref: 'Program' },
+    //url: { type: String, required: [true, 'URL Required'] },
+    dirsearchDirectory: { type: String, required: [true, 'Dirsearch Directory Required']},
+    urlStatus: { type: Array },
+    hakcheckurlFile: { type: String },
+    list: { type: String },
+    url: { type: String },
+    syntax: { type: String },
+
 });
 
 module.exports = mongoose.model('Dirsearch', dirsearchSchema);

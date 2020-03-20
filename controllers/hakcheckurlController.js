@@ -98,6 +98,8 @@ function callHakcheckurl(req,res){
 
             hakcheckurl.syntax = executeHakcheckurl(hakcheckurl, httprobeDirectory);
 
+            hakcheckurl.hakcheckurlFiles = getHakcheckurlResult(hakcheckurl.hakcheckurlDirectory);
+
             hakcheckurl.save((err,hakcheckurlSaved) => {
                 
                 if(err){
@@ -176,6 +178,18 @@ function executeHakcheckurl(hakcheckurl, httprobeDirectory){
     return syntax;
 
 }
+
+function getHakcheckurlResult(hackcheckurlDir){
+
+    let resultArray = [];
+
+    fs.readdirSync(hackcheckurlDir).forEach(files => {
+        resultArray.push(files);
+    });
+
+    return(resultArray);
+};
+
 
 module.exports = {
     testHakcheckurl,

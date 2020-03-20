@@ -8,7 +8,16 @@ const app = express();
 const DirsearchController = require('../controllers/dirsearchController');
 
 //TEST DIRSEARCH ENDPOINT
-app.get('/', DirsearchController.getDirsearch);
+app.get('/', DirsearchController.testDirsearch);
+
+//DIRSEARCH LISTS
+app.get('/Lists', DirsearchController.getDirsearchLists);
+
+//TEST DIRSEARCH ENDPOINT
+app.get('/:id', DirsearchController.getDirsearchFiles);
+
+//EXECUTE SUBDOMAINS CODES
+app.post('/Status/', DirsearchController.getSubdomainsCodes );
 
 //EXECUTE DIRSEARCH
 app.post('/', DirsearchController.callDirsearch );
