@@ -42,8 +42,6 @@ function getHakrawlerFiles(req,res){
                     errors: err 
                 });
             }
-
-            console.log(err);
     
             if(!program){
                 return res.status(500).json({
@@ -54,8 +52,6 @@ function getHakrawlerFiles(req,res){
             }
     
             files = getFindomainFiles(findomainDir);
-    
-            console.log(files);
 
             return res.status(200).json({
                 ok: true,

@@ -13,7 +13,7 @@ const Program = require('../models/program');
 
 //CONSTS
 
-let date = dateFormat(new Date(), "yyyy-mm-dd-HH:MM");
+let date = dateFormat(new Date(), "yyyy-mm-dd-HH-MM");
 
 
 //=====================================================================
@@ -46,7 +46,6 @@ function getDirsearchFiles(req,res){
                 });
             }
 
-            console.log(err);
     
             if(!program){
                 return res.status(500).json({
@@ -58,8 +57,6 @@ function getDirsearchFiles(req,res){
     
             files = getHakcheckurlFiles(hakcheckurlDir);
     
-            console.log(files);
-
             return res.status(200).json({
                 ok: true,
                 files
@@ -85,8 +82,6 @@ function getSubdomainsCodes(req,res){
         hakcheckurlFile: body.file
     });
 
-    console.log(dirsearch);
-
     Program.findById(dirsearch.program, (err,program) => {   
 
         if(err){
@@ -104,8 +99,6 @@ function getSubdomainsCodes(req,res){
                 error: { message: 'Doesnt exist program with this id.' }
             });
         }
-
-        console.log(program);
 
         let hakcheckurlDir = `${program.programDir}Hakcheckurl/${dirsearch.hakcheckurlFile}`;
 
@@ -150,10 +143,12 @@ function callDirsearch(req,res){
             let dirName = dirsearch.url.split('/');
 
             dirsearch.dirsearchDirectory = saveDirsearchDirectory(programDir);
-            console.log(dirsearch.list);
-            dirsearch.syntax = executeDirsearch(dirsearch.url, dirsearch.list, dirsearch, dirName[2]);
 
-            console.log(dirsearch.list);
+            console.log('##################################################');
+            console.log('###############-Dirsearch Started.-###############');
+            console.log('##################################################');
+
+            dirsearch.syntax = executeDirsearch(dirsearch.url, dirsearch.list, dirsearch, dirName[2]);
 
             dirsearch.save( (err, dirSaved) => {
                 if(err){
@@ -172,9 +167,9 @@ function callDirsearch(req,res){
                     });
                 }
 
-                console.log('################################################');
+                console.log('#################################################');
                 console.log('###############-Dirsearch Finish.-###############');
-                console.log('################################################');
+                console.log('#################################################');
 
                 res.status(200).json({
                     ok: true,
@@ -194,9 +189,8 @@ function callDirsearch(req,res){
 }
 
 //=====================================================================
-// FUNCTIONS
+// DIRSEARCH LISTS
 //=====================================================================
-
 
 function getDirsearchLists(req,res){
     let listsArray = [];
@@ -225,10 +219,13 @@ function getDirsearchLists(req,res){
     catch(error){
         console.log(error);
     }
-
-
-
 }
+
+
+//=====================================================================
+// FUNCTIONS
+//=====================================================================
+
 
 function getHakcheckurlFiles(hakcheckurlDir){
     let hakcheckurlArray = [];
@@ -273,8 +270,6 @@ function executeDirsearch(url, list, dirsearch, dirName){
     let syntax = String;
     
     try{
-
-        console.log(list);
 
         syntax = `python3 ~/tools/dirsearch/dirsearch.py -u ${url} -w ./lists/${list} -e php,html,png,js,jpg,json,xml,sql,txt,zip -x 404,400 --plain-text-report=${dirsearch.dirsearchDirectory}dirsearch-${dirName}-${date}.txt`;
 
