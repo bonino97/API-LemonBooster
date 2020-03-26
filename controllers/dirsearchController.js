@@ -10,7 +10,6 @@ const fs = require('fs');
 
 const Dirsearch = require('../models/dirsearch');
 const Program = require('../models/program');
-const Hakcheckurl = require('../models/hakcheckurl');
 
 //CONSTS
 
