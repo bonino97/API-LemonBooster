@@ -163,7 +163,7 @@ function executeAquatone(aquatone, httprobeDirectory){
     let syntax = String;
     let file = `${httprobeDirectory}${aquatone.httprobeFile}`;
 
-    syntax = `cat ${file} | ~/go/bin/aquatone -out ${aquatone.aquatoneDirSession}`;
+    syntax = `cat ${file} | ~/go/bin/aquatone -ports large -out ${aquatone.aquatoneDirSession}`;
 
     shell.exec(syntax);
 

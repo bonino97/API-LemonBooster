@@ -33,7 +33,7 @@ function getLinkfinderFiles(req,res){
     try{
         Program.findById(id, (err, program) => {
 
-            let hakrawlerDir = `${program.programDir}Hakrawler/Js`;
+            let hakcheckurlDir = `${program.programDir}Hakcheckurl/`;
             let files = [];
     
             if(err){
@@ -52,7 +52,7 @@ function getLinkfinderFiles(req,res){
                 });
             }
     
-            files = getHakrawlerFiles(hakrawlerDir);
+            files = getHakcheckurlFiles(hakcheckurlDir);
 
             return res.status(200).json({
                 ok: true,
@@ -75,7 +75,7 @@ function getJsLinks(req,res){
 
     const linkfinder = new Linkfinder({
         program: body.program,
-        jsFile: body.file
+        file: body.file
     });
 
     Program.findById(linkfinder.program, (err,program) => {   
@@ -96,13 +96,13 @@ function getJsLinks(req,res){
             });
         }
 
-        let hakrawlerDirAndFile = `${program.programDir}Hakrawler/Js/${linkfinder.jsFile}`;
+        let hakcheckurlDirAndFile = `${program.programDir}Hakcheckurl/${linkfinder.file}`;
 
-        let hakrawlerFile = returnHakrawlerJsLinks(hakrawlerDirAndFile);
+        let hakcheckurlFile = returnHakcheckurlLinks(hakcheckurlDirAndFile);
 
         return res.status(200).json({
             ok: true,
-            hakrawlerFile
+            hakcheckurlFile
         });
     });
     
@@ -189,7 +189,7 @@ function callLinkfinder(req,res){
 // FUNCTIONS
 //=====================================================================
 
-function getHakrawlerFiles(hakrawlerDir){
+function getHakcheckurlFiles(hakrawlerDir){
     let hakrawlerArray = [];
 
     fs.readdirSync(hakrawlerDir).forEach(files => {
@@ -199,13 +199,13 @@ function getHakrawlerFiles(hakrawlerDir){
     return(hakrawlerArray);
 }
 
-function returnHakrawlerJsLinks(hakrawlerFile){
+function returnHakcheckurlLinks(hakcheckurlFile){
 
-    let hakrawlerResult = [];
+    let hakcheckurlResult = [];
 
-    hakrawlerResult = fs.readFileSync(hakrawlerFile, {encoding: 'utf-8'}).split('\n');
+    hakcheckurlResult = fs.readFileSync(hakcheckurlFile, {encoding: 'utf-8'}).split('\n');
     
-    return hakrawlerResult;
+    return hakcheckurlResult;
 
 }
 
@@ -229,7 +229,7 @@ function executeLinkfinder(link, linkfinderDir, linkName){
     
     try{
 
-        syntax = `python3 ~/tools/LinkFinder/linkfinder.py -i ${link} -o ${linkfinderDir}linkfinder-${linkName}-${date}.html`;
+        syntax = `python3 ~/tools/LinkFinder/linkfinder.py -i ${link} -d -o ${linkfinderDir}linkfinder-${linkName}-${date}.html`;
 
         shell.exec(syntax);
     }

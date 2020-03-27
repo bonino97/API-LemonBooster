@@ -95,7 +95,6 @@ function callHakrawler(req,res){
 
             hakrawler.hakrawlerDirectory = saveHakrawlerDirectory(programDir);
 
-            hakrawler.hakrawlerJsDirectory = saveHakrawlerJsDirectory(hakrawler.hakrawlerDirectory);
 
             console.log('##################################################');
             console.log('###############-HAKRAWLER STARTED.-###############');
@@ -108,15 +107,6 @@ function callHakrawler(req,res){
             console.log('###############-HAKRAWLER FINISH.-###############');
             console.log('#################################################');
 
-            console.log('#####################################################');
-            console.log('###############-HAKRAWLER-JS STARTED.-###############');
-            console.log('#####################################################');
-
-            hakrawler.JSyntax = executeHakrawlerJsFiles(hakrawler.findomainFile, programDir, hakrawler);
-
-            console.log('####################################################');
-            console.log('###############-HAKRAWLER-JS FINISH.-###############');
-            console.log('####################################################');
 
             hakrawler.save( (err, hakrawlerSaved) => {
                 if(err){
@@ -181,19 +171,6 @@ function saveHakrawlerDirectory(programDir){
 
 }
 
-function saveHakrawlerJsDirectory(hakrawlerDir){
-
-    let hakrawlerJsDir = `${hakrawlerDir}Js/`;
-
-    if( fs.existsSync(hakrawlerJsDir) ){
-        console.log('HakrawlerJs Directory Exists.');
-    } else { 
-        shell.exec(`mkdir ${hakrawlerJsDir}`)
-    }
-
-    return hakrawlerJsDir;
-
-}
 
 function executeHakrawler(findomainFile, programDir, hakrawler){
 
@@ -203,24 +180,6 @@ function executeHakrawler(findomainFile, programDir, hakrawler){
     try{
 
         syntax = `cat ${findomainDir}${findomainFile} | ~/go/bin/hakrawler -plain | tee -a ${hakrawler.hakrawlerDirectory}hakrawler-${hakrawler.url}-${date}.txt`;
-
-        shell.exec(syntax);
-    }
-    catch(err){
-        console.log(err);
-    }
-
-    return syntax;
-}
-
-function executeHakrawlerJsFiles(findomainFile, programDir, hakrawler){
-
-    let syntax = String;
-    let findomainDir = `${programDir}Findomain/`;
-
-    try{
-
-        syntax = `cat ${findomainDir}${findomainFile} | ~/go/bin/hakrawler -plain -js | tee -a ${hakrawler.hakrawlerJsDirectory}hakrawlerjs-${hakrawler.url}-${date}.txt`;
 
         shell.exec(syntax);
     }
