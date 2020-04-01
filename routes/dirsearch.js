@@ -22,5 +22,11 @@ app.post('/Status/', DirsearchController.getSubdomainsCodes );
 //EXECUTE DIRSEARCH
 app.post('/', DirsearchController.callDirsearch );
 
+//DIRSEARCH GET SYNTAX
+app.put('/Single', DirsearchController.makeDirsearchSyntax);
+
+//EXECUTE SINGLE DIRSEARCH
+app.post('/Single', DirsearchController.executeSidebarDirsearch);
+
 
 module.exports = app;

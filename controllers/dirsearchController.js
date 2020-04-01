@@ -10,6 +10,7 @@ const fs = require('fs');
 
 const Dirsearch = require('../models/dirsearch');
 const Program = require('../models/program');
+const SingleTools = require('../models/singleTools');
 
 //CONSTS
 
@@ -223,6 +224,190 @@ function getDirsearchLists(req,res){
 
 
 //=====================================================================
+// DIRSEARCH VIA SIDEBAR ENDPOINT.
+//=====================================================================
+
+function makeDirsearchSyntax (req, res){
+    
+    let body = req.body;
+    let recursive = '';
+    let cookies = '';
+    let hostname = '';
+    let forceExtensions = '';
+    let followRedirect = '';
+    let excludeCheck = '';
+    let excludeStatus = '';
+    let threadCheck = '';
+    let threads = '';
+    let httpCheck = '';
+    let httpMethod= '';
+
+    let listFolder = `./lists/`;
+
+
+
+    if(body.recursive == true){
+        recursive = ' -r';
+    }
+    if(body.cookies == true){
+        cookies = ' -c';
+    }
+    if(body.hostname == true){
+        hostname = ' -b';
+    }
+    if(body.forceExtensions == true){
+        forceExtensions = ' -f';
+    }
+    if(body.followRedirect == true){
+        followRedirect = ' -F';
+    }
+    if(body.excludeCheck == true){
+        excludeCheck = ' -x';
+        excludeStatus = body.excludeStatus
+    }
+    if(body.threadCheck == true){
+        threadCheck = ' -t';
+        threads = body.threads;
+    }
+    if(body.httpCheck == true){
+        httpCheck = ' --http-method=';
+        httpMethod = body.httpMethod;   
+    }
+
+
+    let syntax = `python3 ~/tools/dirsearch/dirsearch.py -u ${body.url}${hostname}-w ${listFolder}${body.list}${recursive}${cookies}${forceExtensions}${followRedirect}${excludeCheck} ${excludeStatus}${threadCheck} ${threads}${httpCheck}${httpMethod}`; 
+
+    res.status(200).json(
+        syntax
+    );
+
+}
+
+//=====================================================================
+// EXECUTE LINKFINDER VIA SIDEBAR ENDPOINT.
+//=====================================================================
+
+function executeSidebarDirsearch (req, res){
+    
+    try{
+
+        let body = req.body;
+        let recursive = '';
+        let cookies = '';
+        let hostname = '';
+        let forceExtensions = '';
+        let followRedirect = '';
+        let excludeCheck = '';
+        let excludeStatus = '';
+        let threadCheck = '';
+        let threads = '';
+        let listFolder = `./lists/`;
+        let httpCheck = '';
+        let httpMethod= '';
+        
+        let urlName = '';
+        let singleDir = saveSingleDirsearchDirectory();
+
+        if(body.recursive == true){
+            recursive = ' -r';
+        }
+        if(body.cookies == true){
+            cookies = ' -c';
+        }
+        if(body.hostname == true){
+            hostname = ' -b';
+        }
+        if(body.forceExtensions == true){
+            forceExtensions = ' -f';
+        }
+        if(body.followRedirect == true){
+            followRedirect = ' -F';
+        }
+        if(body.excludeCheck == true){
+            excludeCheck = ' -x';
+            excludeStatus = body.excludeStatus
+        }
+        if(body.threadCheck == true){
+            threadCheck = ' -t';
+            threads = body.threads;
+        }
+        if(body.httpCheck == true){
+            httpCheck = ' --http-method=';
+            httpMethod = body.httpMethod;   
+        }
+
+        if(body.url.indexOf('http') === -1){
+
+            if(body.url.indexOf('/') === -1){
+                urlName = body.url;
+            } else {
+                urlName = body.url.split('/')[0];
+            }
+        } else {
+            urlName = body.url.split('/')[2];
+        }
+
+        let syntax = `python3 ~/tools/dirsearch/dirsearch.py -u ${body.url}${hostname} -w ${listFolder}${body.list}${recursive}${cookies}${forceExtensions}${followRedirect}${excludeCheck}${excludeStatus}${threadCheck} ${threads} -e php,html,png,js,jpg,json,xml,sql,txt,zip${httpCheck}${httpMethod} --plain-text-report=${singleDir}dirsearch-${urlName}-${date}.txt`; 
+
+        console.log('##################################################');
+        console.log('###############- Dirsearch Started -###############');
+        console.log('##################################################');
+
+        shell.exec(syntax);
+
+        console.log('##################################################');
+        console.log('###############- Dirsearch Finish -###############');
+        console.log('##################################################');
+
+        let singleTools = new SingleTools({
+            syntax: syntax,
+            url: body.url
+        });
+
+        singleTools.save();
+
+        res.status(200).json({
+            ok: true,
+            message: 'Dirsearch Executed Correctly.',
+            syntax: syntax,
+            directory: singleDir,
+            singleTools
+        });
+    }
+    catch(error){
+        console.log(error);
+    }
+}
+
+
+//=====================================================================
+// SINGLE TOOLS FUNCTIONS
+//=====================================================================
+
+function saveSingleDirsearchDirectory(){
+
+    let singleDir = `./results/SingleTools/`;
+    let dirsearchDir = `${singleDir}Dirsearch/`    
+
+    if( fs.existsSync(singleDir) ){
+        console.log('SingleTools Directory Exists.');
+    } else { 
+        shell.exec(`mkdir ${singleDir}`)
+    }
+
+    if( fs.existsSync(dirsearchDir) ){
+        console.log('Single Dirsearch Directory Exists.');
+    } else { 
+        shell.exec(`mkdir ${dirsearchDir}`)
+    }
+
+    return dirsearchDir;
+
+}
+
+
+
+//=====================================================================
 // FUNCTIONS
 //=====================================================================
 
@@ -301,5 +486,7 @@ module.exports = {
     callDirsearch,
     testDirsearch,
     getSubdomainsCodes,
-    getDirsearchLists
+    getDirsearchLists,
+    makeDirsearchSyntax,
+    executeSidebarDirsearch
 }

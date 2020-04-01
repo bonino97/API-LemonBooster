@@ -14,6 +14,7 @@ let date = dateFormat(new Date(), "yyyy-mm-dd-HH-MM");
 
 const Program = require('../models/program');
 const Linkfinder = require('../models/linkfinder');
+const SingleTools = require('../models/singleTools');
 
 //=====================================================================
 // TEST ENDPOINTS
@@ -110,7 +111,7 @@ function getJsLinks(req,res){
 }
 
 //=====================================================================
-// CALL DIRSEARCH EXECUTE FUNCTION
+// CALL LINKFINDER EXECUTE FUNCTION
 //=====================================================================
 
 function callLinkfinder(req,res){
@@ -186,6 +187,122 @@ function callLinkfinder(req,res){
 
 
 //=====================================================================
+// LINKFINDER VIA SIDEBAR ENDPOINT.
+//=====================================================================
+
+function getLinkfinderSyntax (req, res){
+    
+    let body = req.body;
+    let domain = '';
+    let cookies = '';
+
+    if(body.domain == true){
+        domain = '-d';
+    }
+    if(body.cookies == true){
+        cookies = '-c';
+    }
+
+    let syntax = `python3 ~/tools/LinkFinder/linkfinder.py -i ${body.url} ${domain} ${cookies}`; 
+
+    res.status(200).json(
+        syntax
+    );
+
+}
+
+//=====================================================================
+// EXECUTE LINKFINDER VIA SIDEBAR ENDPOINT.
+//=====================================================================
+
+function executeSidebarLinkFinder (req, res){
+    
+    try{
+
+        let body = req.body;
+        let domain = '';
+        let cookies = '';
+        let urlName = '';
+        let singleDir = saveSingleLinkfinderDirectory();
+
+        if(body.domain == true){
+            domain = ' -d';
+        }
+        if(body.cookies == true){
+            cookies = ' -c';
+        }
+
+        if(body.url.indexOf('http') === -1){
+
+            if(body.url.indexOf('/') === -1){
+                urlName = body.url;
+            } else {
+                urlName = body.url.split('/')[0];
+            }
+        } else {
+            urlName = body.url.split('/')[2];
+        }
+
+        let syntax = `python3 ~/tools/LinkFinder/linkfinder.py -i ${body.url}${domain}${cookies} -o ${singleDir}linkfinder-${urlName}-${date}.html`; 
+
+        console.log('##################################################');
+        console.log('###############-LinkFinder Started-###############');
+        console.log('##################################################');
+
+        shell.exec(syntax);
+
+        console.log('##################################################');
+        console.log('###############-LinkFinder Finish-###############');
+        console.log('##################################################');
+
+        let singleTools = new SingleTools({
+            syntax: syntax,
+            url: body.url
+        });
+
+        singleTools.save();
+
+        res.status(200).json({
+            ok: true,
+            message: 'Linkfinder Executed Correctly.',
+            syntax: syntax,
+            directory: singleDir,
+            singleTools
+        });
+    }
+    catch(error){
+        console.log(error);
+    }
+}
+
+
+//=====================================================================
+// SINGLE TOOLS FUNCTIONS
+//=====================================================================
+
+function saveSingleLinkfinderDirectory(){
+
+    let singleDir = `./results/SingleTools/`;
+    let linkfinderDir = `${singleDir}LinkFinder/`    
+
+    if( fs.existsSync(singleDir) ){
+        console.log('SingleTools Directory Exists.');
+    } else { 
+        shell.exec(`mkdir ${singleDir}`)
+    }
+
+    if( fs.existsSync(linkfinderDir) ){
+        console.log('Single LinkFinder Directory Exists.');
+    } else { 
+        shell.exec(`mkdir ${linkfinderDir}`)
+    }
+
+    return linkfinderDir;
+
+}
+
+
+//=====================================================================
 // FUNCTIONS
 //=====================================================================
 
@@ -214,14 +331,17 @@ function saveLinkfinderDirectory(programDir){
     let linkfinderDir = `${programDir}Linkfinder/`;
 
     if( fs.existsSync(linkfinderDir) ){
-        console.log('Dirsearch Directory Exists.');
+        console.log('LinkFinder Directory Exists.');
     } else { 
         shell.exec(`mkdir ${linkfinderDir}`)
     }
 
     return linkfinderDir;
-
 }
+
+
+
+
 
 function executeLinkfinder(link, linkfinderDir, linkName){
 
@@ -244,5 +364,7 @@ module.exports = {
     testLinkfinder,
     getLinkfinderFiles,
     getJsLinks,
-    callLinkfinder
+    callLinkfinder,
+    getLinkfinderSyntax,
+    executeSidebarLinkFinder
 }

@@ -16,6 +16,11 @@ app.get('/', FindomainController.getFindomain);
 //EXECUTE FINDOMAIN
 app.post('/', FindomainController.callFindomain)
 
+//SINGLE FINDOMAIN GET SYNTAX
+app.put('/Single', FindomainController.getFindomainSyntax);
+
+//SINGLE FINDOMAIN EXECUTE SYNTAX
+app.post('/Single', FindomainController.executeSidebarFindomain);
 
 
 module.exports = app;
