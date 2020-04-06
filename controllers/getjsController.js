@@ -151,9 +151,6 @@ function callGetJs(req,res){
 
             getJs.syntax = executeGetJs(getJs.link, getJs.getjsDirectory, getjsName);
 
-            console.log('#################################################');
-            console.log('###############-GetJs Finish.-###############');
-            console.log('#################################################');
 
             getJs.save( (err, getJsSaved) => {
                 if(err){
@@ -171,6 +168,10 @@ function callGetJs(req,res){
                         errors: {message: 'GetJs doesnt exists.'}
                     });
                 }
+
+                console.log('#################################################');
+                console.log('###############-GetJs Finish.-###################');
+                console.log('#################################################');
 
                 res.status(200).json({
                     ok: true,
@@ -234,9 +235,9 @@ function executeGetJs(link, getJsDir, getJsName){
     
     try{
 
-        syntax = "getJS -input=./results/PayPal/Httprobe/httprobe-xoom.com-2020-04-05-19-54.txt -complete -resolve -output=./results/PayPal/GetJs/getJs-www.xoom.com-2020-04-05-20-29.txt";
+        //syntax = "getJS -input=./results/PayPal/Httprobe/httprobe-xoom.com-2020-04-05-19-54.txt -complete -resolve -output=./results/PayPal/GetJs/getJs-www.xoom.com-2020-04-05-20-29.txt";
         //syntax = `~/go/bin/getJS -url=${link}`;
-        //syntax = `getJS -url=${link} -complete -resolve -output=${getJsDir}getJs-${getJsName}-${date}.txt`;
+        syntax = `~/go/bin/getJS -url=${link} -complete -resolve -output=${getJsDir}getJs-${getJsName}-${date}.txt`;
         // syntax = '~/go/bin/getJS -url='+link+' -complete -resolve -output='+getJsDir+'getJs-'+getJsName+date+'.txt';
         console.log(syntax)
         shell.exec(syntax);
