@@ -61,6 +61,7 @@ mongoose.connection.openUri('mongodb://localhost:27017/lemon-booster', { useNewU
 
 //IMPORT
 
+var getJsRoutes = require('./routes/getjs');
 var arjunRoutes = require('./routes/arjun');
 var linkfinderRoutes = require('./routes/linkfinder');
 var hakrawlerRoutes = require('./routes/hakrawler');
@@ -75,6 +76,7 @@ var appRoutes = require('./routes/app');
 
 
 //ROUTES
+app.use('/GetJs', getJsRoutes);
 app.use('/Arjun', arjunRoutes);
 app.use('/Linkfinder', linkfinderRoutes);
 app.use('/Hakrawler', hakrawlerRoutes);
