@@ -61,6 +61,8 @@ mongoose.connection.openUri('mongodb://localhost:27017/lemon-booster', { useNewU
 
 //IMPORT
 
+var zileRoutes = require('./routes/zile');
+var jsearchRoutes = require('./routes/jsearch');
 var getJsRoutes = require('./routes/getjs');
 var arjunRoutes = require('./routes/arjun');
 var linkfinderRoutes = require('./routes/linkfinder');
@@ -76,6 +78,9 @@ var appRoutes = require('./routes/app');
 
 
 //ROUTES
+
+app.use('/Zile', zileRoutes);
+app.use('/JSearch', jsearchRoutes);
 app.use('/GetJs', getJsRoutes);
 app.use('/Arjun', arjunRoutes);
 app.use('/Linkfinder', linkfinderRoutes);

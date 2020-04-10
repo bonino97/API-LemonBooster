@@ -58,6 +58,14 @@ function getDirsearchFiles(req,res){
     
             files = getHakcheckurlFiles(hakcheckurlDir);
     
+            if(!files){
+                return res.status(500).json({
+                    ok: false,
+                    message: 'Execute Hakcheckurl first.',
+                    error: err
+                });
+            }
+
             return res.status(200).json({
                 ok: true,
                 files
@@ -76,42 +84,49 @@ function getDirsearchFiles(req,res){
 //=====================================================================
 
 function getSubdomainsCodes(req,res){
-    const body = req.body;   
-
-    const dirsearch = new Dirsearch({
-        program: body.program,
-        hakcheckurlFile: body.file
-    });
-
-    Program.findById(dirsearch.program, (err,program) => {   
-
-        if(err){
-            return res.status(400).json({
-                ok: false,
-                message: 'Error getting Program.',
-                errors: err 
-            });
-        }
-
-        if(!program){
-            return res.status(500).json({
-                ok: false,
-                message: 'Doesnt exist program with this id.' ,
-                error: { message: 'Doesnt exist program with this id.' }
-            });
-        }
-
-        let hakcheckurlDir = `${program.programDir}Hakcheckurl/${dirsearch.hakcheckurlFile}`;
-
-        let hakchekurlFile = returnHakcheckurlFiles(hakcheckurlDir);
-
-        return res.status(200).json({
-            ok: true,
-            hakchekurlFile
-        });
-    });
     
+    try {
 
+        const body = req.body;   
+
+        const dirsearch = new Dirsearch({
+            program: body.program,
+            hakcheckurlFile: body.file
+        });
+
+        Program.findById(dirsearch.program, (err,program) => {   
+
+            if(err){
+                return res.status(400).json({
+                    ok: false,
+                    message: 'Error getting Program.',
+                    errors: err 
+                });
+            }
+
+            if(!program){
+                return res.status(500).json({
+                    ok: false,
+                    message: 'Doesnt exist program with this id.' ,
+                    error: { message: 'Doesnt exist program with this id.' }
+                });
+            }
+
+            let hakcheckurlDir = `${program.programDir}Hakcheckurl/${dirsearch.hakcheckurlFile}`;
+
+            let hakchekurlFile = returnHakcheckurlFiles(hakcheckurlDir);
+
+            return res.status(200).json({
+                ok: true,
+                hakchekurlFile
+            });
+        });
+
+    }
+    catch(err){
+        console.log(err)
+    }
+    
 }
 
 
@@ -386,22 +401,28 @@ function executeSidebarDirsearch (req, res){
 
 function saveSingleDirsearchDirectory(){
 
-    let singleDir = `./results/SingleTools/`;
-    let dirsearchDir = `${singleDir}Dirsearch/`    
+    try {
 
-    if( fs.existsSync(singleDir) ){
-        console.log('SingleTools Directory Exists.');
-    } else { 
-        shell.exec(`mkdir ${singleDir}`)
+        let singleDir = `./results/SingleTools/`;
+        let dirsearchDir = `${singleDir}Dirsearch/`    
+    
+        if( fs.existsSync(singleDir) ){
+            console.log('SingleTools Directory Exists.');
+        } else { 
+            shell.exec(`mkdir ${singleDir}`)
+        }
+    
+        if( fs.existsSync(dirsearchDir) ){
+            console.log('Single Dirsearch Directory Exists.');
+        } else { 
+            shell.exec(`mkdir ${dirsearchDir}`)
+        }
+    
+        return dirsearchDir;
+
+    } catch(err){
+        return err
     }
-
-    if( fs.existsSync(dirsearchDir) ){
-        console.log('Single Dirsearch Directory Exists.');
-    } else { 
-        shell.exec(`mkdir ${dirsearchDir}`)
-    }
-
-    return dirsearchDir;
 
 }
 
@@ -413,16 +434,23 @@ function saveSingleDirsearchDirectory(){
 
 
 function getHakcheckurlFiles(hakcheckurlDir){
-    let hakcheckurlArray = [];
+    
+    try{
+        let hakcheckurlArray = [];
 
-    fs.readdirSync(hakcheckurlDir).forEach(files => {
-        hakcheckurlArray.push(files);
-        //analyzeHakcheckurlFiles(hakcheckurlDir,files);
-    });
+        fs.readdirSync(hakcheckurlDir).forEach(files => {
+            hakcheckurlArray.push(files);
+            //analyzeHakcheckurlFiles(hakcheckurlDir,files);
+        });
+    
+        //analyzeHakcheckurlFiles(hakcheckurlDir,hakcheckurlArray[1]);
+    
+        return(hakcheckurlArray);
+    }
+    catch(err){
+        return false;
+    }
 
-    //analyzeHakcheckurlFiles(hakcheckurlDir,hakcheckurlArray[1]);
-
-    return(hakcheckurlArray);
 }
 
 function getHttprobeFiles(httprobeDir){

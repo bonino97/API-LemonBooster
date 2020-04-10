@@ -55,6 +55,14 @@ function getLinkfinderFiles(req,res){
     
             files = getHakcheckurlFiles(hakcheckurlDir);
 
+            if(!files){
+                return res.status(500).json({
+                    ok: false,
+                    message: 'Execute Hakcheckurl first.',
+                    error: err
+                });
+            }
+
             return res.status(200).json({
                 ok: true,
                 files
@@ -307,13 +315,19 @@ function saveSingleLinkfinderDirectory(){
 //=====================================================================
 
 function getHakcheckurlFiles(hakrawlerDir){
-    let hakrawlerArray = [];
 
-    fs.readdirSync(hakrawlerDir).forEach(files => {
-        hakrawlerArray.push(files);
-    });
+    try {
+        let hakrawlerArray = [];
 
-    return(hakrawlerArray);
+        fs.readdirSync(hakrawlerDir).forEach(files => {
+            hakrawlerArray.push(files);
+        });
+    
+        return(hakrawlerArray);
+    }
+    catch(err){
+        return false;
+    }
 }
 
 function returnHakcheckurlLinks(hakcheckurlFile){

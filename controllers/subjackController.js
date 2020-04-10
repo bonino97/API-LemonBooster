@@ -52,6 +52,15 @@ function getSubjack(req,res){
 
         let subdomainFiles = getSubjackFiles(subdomainDir);
 
+        if(!subdomainFiles){
+            return res.status(500).json({
+                ok: false,
+                message: 'Execute Findomain first.',
+                error: err
+            });
+        }
+
+
         return res.status(200).json({
             ok: true,
             subdomainFiles
@@ -157,13 +166,20 @@ function executeSubjack(subjack, subdomainsDirectory){
 
 function getSubjackFiles(subdomainsDirectory) {
 
-    let findomainArray = [];
+    try {
 
-    fs.readdirSync(subdomainsDirectory).forEach(files => {
-        findomainArray.push(files);
-    });
+        let findomainArray = [];
 
-    return(findomainArray);
+        fs.readdirSync(subdomainsDirectory).forEach(files => {
+            findomainArray.push(files);
+        });
+    
+        return(findomainArray);
+
+    }
+    catch(err){
+        return false;
+    }
 }
 
 function saveSubjackDirectory(programDir){

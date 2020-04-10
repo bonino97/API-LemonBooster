@@ -55,6 +55,15 @@ function getAquatone(req,res){
 
         let httprobeFiles = getAquatoneFiles(subdomainDir);
 
+        if(!httprobeFiles){
+            return res.status(500).json({
+                ok: false,
+                message: 'Execute Httprobe first.',
+                error: err
+            });
+        }
+
+
         return res.status(200).json({
             ok: true,
             httprobeFiles
@@ -173,13 +182,21 @@ function executeAquatone(aquatone, httprobeDirectory){
 
 function getAquatoneFiles(subdomainDir){
 
-    let aquatoneArray = [];
+    try {
 
-    fs.readdirSync(subdomainDir).forEach(files => {
-        aquatoneArray.push(files);
-    });
+        let aquatoneArray = [];
 
-    return(aquatoneArray);
+        fs.readdirSync(subdomainDir).forEach(files => {
+            aquatoneArray.push(files);
+        });
+    
+        return(aquatoneArray);
+
+    }
+    catch(err){
+        console.log("Doesn't exist a Httprobe Scan yet!");
+        return false;
+    }
 
 };
 

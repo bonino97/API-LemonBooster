@@ -3,7 +3,6 @@
 //LIBRARIES 
 
 const shell = require('shelljs');
-const cp = require("child_process");
 const dateFormat = require('dateformat');
 const fs = require('fs');
 
@@ -112,7 +111,7 @@ function getJsLinks(req,res){
 }
 
 //=====================================================================
-// CALL LINKFINDER EXECUTE FUNCTION
+// CALL GETJS EXECUTE FUNCTION
 //=====================================================================
 
 function callGetJs(req,res){
@@ -149,8 +148,7 @@ function callGetJs(req,res){
             console.log('##################################################');
 
 
-            getJs.syntax = executeGetJs(getJs.link, getJs.getjsDirectory, getjsName);
-
+            getJs.syntax = executeGetJs(getJs, getjsName);
 
             getJs.save( (err, getJsSaved) => {
                 if(err){
@@ -196,22 +194,35 @@ function callGetJs(req,res){
 //=====================================================================
 
 function getHakcheckurlFiles(hakcheckurlDir){
-    let hakcheckurlArray = [];
+    
+    try {
+        let hakcheckurlArray = [];
 
-    fs.readdirSync(hakcheckurlDir).forEach(files => {
-        hakcheckurlArray.push(files);
-    });
+        fs.readdirSync(hakcheckurlDir).forEach(files => {
+            hakcheckurlArray.push(files);
+        });
+    
+        return(hakcheckurlArray);
+    }
+    catch(err){
+        return err
+    }
 
-    return(hakcheckurlArray);
 }
 
 function returnHakcheckurlLinks(hakcheckurlFile){
 
-    let hakcheckurlResult = [];
+    try {
+        let hakcheckurlResult = [];
 
-    hakcheckurlResult = fs.readFileSync(hakcheckurlFile, {encoding: 'utf-8'}).split('\n');
-    
-    return hakcheckurlResult;
+        hakcheckurlResult = fs.readFileSync(hakcheckurlFile, {encoding: 'utf-8'}).split('\n');
+        
+        return hakcheckurlResult;
+    }
+    catch(err){
+        return err
+    }
+
 
 }
 
@@ -229,24 +240,34 @@ function saveGetJsDirectory(programDir){
 }
 
 
-function executeGetJs(link, getJsDir, getJsName){
+function executeGetJs(getJs, getJsName){
 
-    let syntax;
+    //getJs.link, getJs.getjsDirectory
+
     
+
+    //syntax = "getJS -input=./results/PayPal/Httprobe/httprobe-xoom.com-2020-04-05-19-54.txt -complete -resolve -output=./results/PayPal/GetJs/getJs-www.xoom.com-2020-04-05-20-29.txt";
+    //syntax = `~/go/bin/getJS -url=${link}`;
+    // syntax = `~/go/bin/getJS -url=${link} -complete -resolve -output=${getJsDir}getJs-${getJsName}-${date}.txt`;
+    // syntax = '~/go/bin/getJS -url='+link+' -complete -resolve -output='+getJsDir+'getJs-'+getJsName+date+'.txt';
+
     try{
 
-        //syntax = "getJS -input=./results/PayPal/Httprobe/httprobe-xoom.com-2020-04-05-19-54.txt -complete -resolve -output=./results/PayPal/GetJs/getJs-www.xoom.com-2020-04-05-20-29.txt";
-        //syntax = `~/go/bin/getJS -url=${link}`;
-        syntax = `~/go/bin/getJS -url=${link} -complete -resolve -output=${getJsDir}getJs-${getJsName}-${date}.txt`;
-        // syntax = '~/go/bin/getJS -url='+link+' -complete -resolve -output='+getJsDir+'getJs-'+getJsName+date+'.txt';
-        console.log(syntax)
-        shell.exec(syntax);
+        let syntax = String;
+        let getJsFile = `${getJs.getjsDirectory}getJs-${getJsName}-${date}.txt`;
+
+        syntax = `~/go/bin/getJS -url=${getJs.link} -complete -resolve -output=${getJsFile}`;
+
+        shell.exec("echo " + syntax);
+        return syntax;
+
     }
     catch(err){
         console.log(err);
+        return err;
     }
 
-    return syntax;
+
 }
 
 module.exports = {

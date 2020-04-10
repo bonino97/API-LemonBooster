@@ -52,6 +52,15 @@ function getHakcheckurl(req,res){
 
         let httprobeFiles = getHakcheckurlFiles(subdomainDir);
 
+        
+        if(!httprobeFiles){
+            return res.status(500).json({
+                ok: false,
+                message: 'Execute Httprobe first.',
+                error: err
+            });
+        }
+
         return res.status(200).json({
             ok: true,
             httprobeFiles
@@ -145,13 +154,20 @@ function callHakcheckurl(req,res){
 
 function getHakcheckurlFiles(subdomainDir){
 
-    let hakcheckurlArray = [];
+    try {
 
-    fs.readdirSync(subdomainDir).forEach(files => {
-        hakcheckurlArray.push(files);
-    });
+        let hakcheckurlArray = [];
 
-    return(hakcheckurlArray);
+        fs.readdirSync(subdomainDir).forEach(files => {
+            hakcheckurlArray.push(files);
+        });
+    
+        return(hakcheckurlArray);
+
+    }
+    catch(err){
+        return false;
+    }
 };
 
 function saveHakcheckurlDirectory(programDir){

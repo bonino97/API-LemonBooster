@@ -6,33 +6,35 @@ const shell = require('shelljs');
 const dateFormat = require('dateformat');
 const fs = require('fs');
 
-//MODELS
-const Program = require('../models/program');
-const Hakrawler = require('../models/hakrawler');
-
 //CONSTS
 
 let date = dateFormat(new Date(), "yyyy-mm-dd-HH-MM");
+
+//MODELS
+
+const Program = require('../models/program');
+const Zile = require('../models/zile');
+
 
 //=====================================================================
 // TEST ENDPOINTS
 //=====================================================================
 
-function testHakrawler(req,res){
-    res.json('GET Hakrawler - Web Crawling Enabled.');
+function testZile(req,res){
+    res.json('GET Zile - Endpoint Scanner.');
 }
 
 //=====================================================================
-// OBTAIN HAKRAWLER PROGRAM WITH PROGRAMID
+// OBTAIN ZILE PROGRAM WITH PROGRAMID
 //=====================================================================
 
-function getHakrawlerFiles(req,res){
+function getZileFiles(req,res){
     let id = req.params.id;
 
     try{
         Program.findById(id, (err, program) => {
 
-            let findomainDir = `${program.programDir}Findomain/`;
+            let hakrawlerDir = `${program.programDir}Hakrawler/`;
             let files = [];
     
             if(err){
@@ -51,16 +53,16 @@ function getHakrawlerFiles(req,res){
                 });
             }
     
-            files = getFindomainFiles(findomainDir);
+            files = getHakrawlerFiles(hakrawlerDir);
 
             if(!files){
                 return res.status(500).json({
                     ok: false,
-                    message: 'Execute Findomain first.',
+                    message: 'Execute Hakrawler first.',
                     error: err
                 });
             }
-
+            
             return res.status(200).json({
                 ok: true,
                 files
@@ -68,29 +70,32 @@ function getHakrawlerFiles(req,res){
     
         });
     }
-
     catch(err){
-        console.log(err);
+        console.log(err)
+        return res.status(500).json({
+            ok: false,
+            message: 'Error loading tool...',
+            error: err
+        });
     }
 }
 
 //=====================================================================
-// CALL HAKRAWLER EXECUTE FUNCTION
+// CALL ZILE EXECUTE FUNCTION
 //=====================================================================
 
-function callHakrawler(req,res){
+function callZile(req,res){
 
     var body = req.body;
 
-    var hakrawler = new Hakrawler({
+    var zile = new Zile({
         program: body.program,
-        url: body.url,
-        findomainFile: body.findomainFile
+        file: body.file
     });
 
     try {
 
-        Program.findById(hakrawler.program, (err,program) => {
+        Program.findById(zile.program, (err,program) => {
             if(err){
                 return res.status(400).json({
                     ok: false,
@@ -100,43 +105,46 @@ function callHakrawler(req,res){
             }
 
             let programDir = program.programDir;  
+            let zileName = zile.file.split('-')[1];
 
-            hakrawler.hakrawlerDirectory = saveHakrawlerDirectory(programDir);
+            console.log(zileName)
 
+            zile.zileDirectory = saveZileDirectory(programDir);
+
+            console.log(zile.zileDirectory)
 
             console.log('##################################################');
-            console.log('###############-HAKRAWLER STARTED.-###############');
+            console.log('###############-Zile Started-###############');
             console.log('##################################################');
 
-            hakrawler.syntax = executeHakrawler(hakrawler.findomainFile, programDir, hakrawler);
 
-            
-            console.log('#################################################');
-            console.log('###############-HAKRAWLER FINISH.-###############');
-            console.log('#################################################');
+            zile.syntax = executeZile(zile, zileName, programDir);
 
-
-            hakrawler.save( (err, hakrawlerSaved) => {
+            zile.save( (err, zileSaved) => {
                 if(err){
                     return res.status(400).json({
                         ok: false,
-                        message: 'Error executing Hakrawler.',
+                        message: 'Error executing Zile.',
                         errors: err 
                     });
                 }
 
-                if(!hakrawler){
+                if(!zile){
                     return res.status(400).json({
                         ok: false,
-                        message: 'Hakrawler doesnt exists.',
-                        errors: {message: 'Hakrawler doesnt exists.'}
+                        message: 'Zile doesnt exists.',
+                        errors: {message: 'Zile doesnt exists.'}
                     });
                 }
 
+                console.log('#################################################');
+                console.log('###############-Zile Finish.-###################');
+                console.log('#################################################');
+
                 res.status(200).json({
                     ok: true,
-                    message: 'Hakrawler Executed Correctly.',
-                    hakrawler: hakrawlerSaved
+                    message: 'Zile Executed Correctly.',
+                    zile: zileSaved
                 });
 
             });
@@ -145,69 +153,92 @@ function callHakrawler(req,res){
 
     }
     catch(err){
+
         console.log(err);
+        return res.status(500).json({
+            ok: false,
+            message: 'Error executing tool',
+            error: err
+        });
+
     }
 
 }
+
+
+
+
+
 
 
 //=====================================================================
 // FUNCTIONS
 //=====================================================================
 
-function getFindomainFiles(findomainDir){
+function getHakrawlerFiles(hakrawlerDir){
     
     try{
-        let findomainArray = [];
+        let hakrawlerArray = [];
 
-        fs.readdirSync(findomainDir).forEach(files => {
-            findomainArray.push(files);
+        fs.readdirSync(hakrawlerDir).forEach(files => {
+            hakrawlerArray.push(files);
         });
     
-        return(findomainArray);
-    }   
+        return(hakrawlerArray);
+    }
     catch(err){
+        console.log("Doesn't exist a Hakrawler Scan yet!");
         return false;
     }
+
+
 }
 
-function saveHakrawlerDirectory(programDir){
+function saveZileDirectory(programDir){
 
-    let hakrawlerDir = `${programDir}Hakrawler/`;
+    try {
+        let zileDir = `${programDir}KeyFinder/`;
 
-    if( fs.existsSync(hakrawlerDir) ){
-        console.log('Hakrawler Directory Exists.');
-    } else { 
-        shell.exec(`mkdir ${hakrawlerDir}`)
+        if( fs.existsSync(zileDir) ){
+            console.log('Zile Directory Exists.');
+        } else { 
+            shell.exec(`mkdir ${zileDir}`)
+        }
+    
+        return zileDir;
+    }
+    catch(err){
+        return err;
     }
 
-    return hakrawlerDir;
 
 }
 
-
-function executeHakrawler(findomainFile, programDir, hakrawler){
-
-    let syntax = String;
-    let findomainDir = `${programDir}Findomain/`;
+function executeZile(zile, zileName, programDir){
 
     try{
 
-        syntax = `cat ${findomainDir}${findomainFile} | ~/go/bin/hakrawler -plain | tee -a ${hakrawler.hakrawlerDirectory}hakrawler-${hakrawler.url}-${date}.txt`;
+        let syntax = String;
+        let hakrawlerFile = `${programDir}Hakrawler/${zile.file}`;
+
+        syntax = `cat ${hakrawlerFile} | python3 ~/tools/new-zile/zile.py --request | tee -a ${zile.zileDirectory}keys-${zileName}-${date}.txt`;
 
         shell.exec(syntax);
+        return syntax;
+
     }
     catch(err){
+        
         console.log(err);
+        return err;
     }
-
-    return syntax;
 }
+
+
 
 
 module.exports = {
-    testHakrawler,
-    getHakrawlerFiles,
-    callHakrawler
-    
+    testZile,
+    getZileFiles,
+    callZile
 }

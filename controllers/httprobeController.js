@@ -53,6 +53,14 @@ function getHttprobe(req,res){
 
         let subdomainFiles = getHttprobeFiles(subdomainDir);
 
+        if(!subdomainFiles){
+            return res.status(500).json({
+                ok: false,
+                message: 'Execute Findomain first.',
+                error: err
+            });
+        }
+
         return res.status(200).json({
             ok: true,
             subdomainFiles
@@ -139,6 +147,11 @@ function callHttprobe(req,res){
 
     } catch(err) {
         console.log(err);
+        res.status(500).json({
+            ok: false,
+            message: 'Error executing tool',
+            error: err
+        });
     }
 }
 
@@ -157,13 +170,21 @@ function executeHttprobe(httprobe, subdomainsDirectory){
 
 function getHttprobeFiles(subdomainsDirectory) {
 
-    let httprobeArray = [];
+    try {
 
-    fs.readdirSync(subdomainsDirectory).forEach(files => {
-        httprobeArray.push(files);
-    });
+        let httprobeArray = [];
 
-    return(httprobeArray);
+        fs.readdirSync(subdomainsDirectory).forEach(files => {
+            httprobeArray.push(files);
+        });
+    
+        return(httprobeArray);
+
+    }
+    catch(err){
+        console.log("Doesn't exist a Findomain Scan yet!");
+        return false;
+    }
 }
 
 function saveHttprobeDirectory(programDir){
