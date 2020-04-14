@@ -187,7 +187,7 @@ function executeHakcheckurl(hakcheckurl, httprobeDirectory){
     let syntax = String;
     let file = `${httprobeDirectory}${hakcheckurl.httprobeFile}`;
 
-    syntax = `cat ${file} | ~/go/bin/hakcheckurl | grep -v 404 | tee -a ${hakcheckurl.hakcheckurlDirectory}hakcheckurl-${hakcheckurl.url}-${date}.txt`;
+    syntax = `cat ${file} | ~/go/bin/hakcheckurl | grep -v 404,999 | tee -a ${hakcheckurl.hakcheckurlDirectory}hakcheckurl-${hakcheckurl.url}-${date}.txt`;
 
     shell.exec(syntax);
 
