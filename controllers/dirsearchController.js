@@ -484,7 +484,7 @@ function executeDirsearch(url, list, dirsearch, dirName){
     
     try{
 
-        syntax = `python3 ~/tools/dirsearch/dirsearch.py -u ${url} -w ./lists/${list} -e php,html,png,js,jpg,json,xml,sql,txt,zip -x 404,400 --plain-text-report=${dirsearch.dirsearchDirectory}dirsearch-${dirName}-${date}.txt`;
+        syntax = `python3 ~/tools/dirsearch/dirsearch.py -u ${url} -w ./lists/${list} -t 60 -e php,html,png,js,jpg,json,xml,sql,txt,zip -x 404,400 --plain-text-report=${dirsearch.dirsearchDirectory}dirsearch-${dirName}-${date}.txt`;
 
         shell.exec(syntax);
     }

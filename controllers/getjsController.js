@@ -54,6 +54,15 @@ function getGetJsFiles(req,res){
             }
     
             files = getHakcheckurlFiles(hakcheckurlDir);
+            
+            if(!files){
+                return res.status(500).json({
+                    ok: false,
+                    message: 'Execute Hakcheckurl or Httprobe first.',
+                    error: err
+                });
+            }
+
 
             return res.status(200).json({
                 ok: true,
@@ -202,10 +211,10 @@ function getHakcheckurlFiles(hakcheckurlDir){
             hakcheckurlArray.push(files);
         });
     
-        return(hakcheckurlArray);
+        return hakcheckurlArray;
     }
     catch(err){
-        return err
+        return false
     }
 
 }
@@ -242,23 +251,14 @@ function saveGetJsDirectory(programDir){
 
 function executeGetJs(getJs, getJsName){
 
-    //getJs.link, getJs.getjsDirectory
-
-    
-
-    //syntax = "getJS -input=./results/PayPal/Httprobe/httprobe-xoom.com-2020-04-05-19-54.txt -complete -resolve -output=./results/PayPal/GetJs/getJs-www.xoom.com-2020-04-05-20-29.txt";
-    //syntax = `~/go/bin/getJS -url=${link}`;
-    // syntax = `~/go/bin/getJS -url=${link} -complete -resolve -output=${getJsDir}getJs-${getJsName}-${date}.txt`;
-    // syntax = '~/go/bin/getJS -url='+link+' -complete -resolve -output='+getJsDir+'getJs-'+getJsName+date+'.txt';
-
     try{
 
         let syntax = String;
         let getJsFile = `${getJs.getjsDirectory}getJs-${getJsName}-${date}.txt`;
 
-        syntax = `~/go/bin/getJS -url=${getJs.link} -complete -resolve -output=${getJsFile}`;
+        syntax = `~/go/bin/getJS -url=${getJs.link} -resolve -complete -output=${getJsFile}`;
 
-        shell.exec("echo " + syntax);
+        shell.exec(syntax);
         return syntax;
 
     }

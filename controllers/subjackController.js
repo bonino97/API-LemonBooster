@@ -55,7 +55,7 @@ function getSubjack(req,res){
         if(!subdomainFiles){
             return res.status(500).json({
                 ok: false,
-                message: 'Execute Findomain first.',
+                message: 'Execute Subdomain Enumeration first.',
                 error: err
             });
         }

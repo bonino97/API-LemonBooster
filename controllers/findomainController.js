@@ -18,7 +18,9 @@ const SingleTools = require('../models/singleTools');
 
 let date = dateFormat(new Date(), "yyyy-mm-dd-HH-MM");
 
+//DIRS
 
+const goDir = '~/go/bin/';
 
 //=====================================================================
 // TEST ENDPOINTS
@@ -53,13 +55,8 @@ function callFindomain(req, res){
             });
         }
 
-        if(body.resolvable === '1'){
-            findomain.resolvable = true;
-            findomain.syntax = executeFindomain(body.url, findomain.program, program.programDir, true);
-        } else {
-            findomain.resolvable = false;
-            findomain.syntax = executeFindomain(body.url, findomain.program, program.programDir, false);
-        }
+        
+        findomain.syntax = executeFindomain(body.url, findomain.program, program.programDir);
         
         findomain.save((err,findoSaved) => {
             
@@ -93,12 +90,19 @@ function callFindomain(req, res){
 // EXECUTE FINDOMAIN
 //=====================================================================
 
-function executeFindomain(scope, program, programDir, resolvable){
+function executeFindomain(scope, program, programDir){
 
-    let syntax = String;
     let url = scope.trim();
+
     let findomainDir = `${programDir}Findomain/`;
-    let file = `${findomainDir}findomain-${url}-${date}.txt`;
+    let findoFile = `${findomainDir}findomain-${url}-${date}.txt`;
+    let lvl2FindoFile = `${findomainDir}findomain2-${url}-${date}.txt`;
+    let afinderFile = `${findomainDir}afinder-${url}-${date}.txt`;
+    let lvl2AfinderFile = `${findomainDir}afinder2-${url}-${date}.txt`;
+    let subfinderFile = `${findomainDir}subfinder-${url}-${date}.txt`;
+    let level1 = `${findomainDir}lvl1-${url}-${date}.txt`;
+    let level2 = `${findomainDir}lvl2-${url}-${date}.txt`;
+    let file = `${findomainDir}subdomains-${url}-${date}.txt`;
 
 
     if( fs.existsSync(findomainDir) ){
@@ -109,20 +113,35 @@ function executeFindomain(scope, program, programDir, resolvable){
 
     try{
 
-        if(resolvable){
-            syntax = `findomain -t ${url} -r -u ${file}`;
-        } else {
-            syntax = `findomain -t ${url} -u ${file}`;
-        }
+        var findoSyntax = `findomain -t ${url} -u ${findoFile}`;
+        var subfinderSyntax = `subfinder -d ${url} -o ${subfinderFile}`;
+        var afinderSyntax = `${goDir}assetfinder --subs-only ${url} | tee -a ${afinderFile}`;
 
-        shell.exec(syntax);
+        var lvl2FindomainSyntax = `findomain -f ${level1} -u ${lvl2FindoFile}`;
+        var lvl2AfinderSyntax = `cat ${level1} | ${goDir}assetfinder --subs-only | tee -a ${lvl2AfinderFile}`;
+
+        var lvl3SubfinderSyntax = `subfinder -dL ${level2} -t 85 -timeout 15 -o ${file}`;
+
+        shell.exec(findoSyntax);
+        shell.exec(subfinderSyntax);
+        shell.exec(afinderSyntax);
+        shell.exec(`cat ${findoFile} ${subfinderFile} ${afinderFile} >> ${level1}`);
+        shell.exec(`sort -u ${level1} -o ${level1}`);
+        shell.exec(lvl2FindomainSyntax);
+        shell.exec(lvl2AfinderSyntax);
+        shell.exec(`cat ${lvl2FindoFile} ${lvl2AfinderFile} >> ${level2}`);
+        shell.exec(`sort -u ${level2} -o ${level2}`);
+        shell.exec(lvl3SubfinderSyntax);
+        shell.exec(`sort -u ${file} -o ${file}`);
+        shell.exec(`rm -r ${findoFile} ${subfinderFile} ${afinderFile} ${lvl2FindoFile} ${lvl2AfinderFile} ${level1} ${level2}`);
 
         saveSubdomains(program, findomainDir, file, url);
+
+        return lvl3SubfinderSyntax;
     }
     catch(err){
         console.log(err);
     }
-    return syntax.toString();
 }
 
 function saveSubdomains(program, programDir, file, url){
@@ -150,7 +169,6 @@ function saveSubdomains(program, programDir, file, url){
     //     subdomains.save();
     // });
 }
-
 
 //=====================================================================
 // FINDOMAIN VIA SIDEBAR ENDPOINT.
@@ -222,7 +240,6 @@ function executeSidebarFindomain (req, res){
         console.log(error);
     }
 }
-
 
 //=====================================================================
 // SINGLE TOOLS FUNCTIONS

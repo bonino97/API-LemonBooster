@@ -71,7 +71,7 @@ function getProgram(req,res){
 function addProgram(req,res){
     let body = req.body;
     
-    let resultDir = `./results/`;
+    let resultDir = `../LemonBooster-Results/`;
 
     let programDir = `${resultDir}${body.name}/`;
 

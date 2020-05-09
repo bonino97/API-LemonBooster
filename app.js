@@ -60,7 +60,9 @@ mongoose.connection.openUri('mongodb://localhost:27017/lemon-booster', { useNewU
 
 
 //IMPORT
-
+var gauRoutes = require('./routes/gau');
+var waybackurlsRoutes = require('./routes/waybackurls');
+var gospiderRoutes = require('./routes/gospider');
 var zileRoutes = require('./routes/zile');
 var jsearchRoutes = require('./routes/jsearch');
 var getJsRoutes = require('./routes/getjs');
@@ -78,7 +80,9 @@ var appRoutes = require('./routes/app');
 
 
 //ROUTES
-
+app.use('/Gau', gauRoutes);
+app.use('/Waybackurls', waybackurlsRoutes);
+app.use('/GoSpider', gospiderRoutes);
 app.use('/Zile', zileRoutes);
 app.use('/JSearch', jsearchRoutes);
 app.use('/GetJs', getJsRoutes);
