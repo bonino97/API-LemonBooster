@@ -20,7 +20,7 @@ app.use(bodyParser.json())
 ///#############################################################################
 
 app.all(function(req, res, next) {
-    res.header("Access-Control-Allow-Origin", "*"); // DOMINIO PERMITIDO PARA INTERACTUAR CON EL SVR
+    res.header("Access-Control-Allow-Origin", "http://front.lemonsec.com/"); // DOMINIO PERMITIDO PARA INTERACTUAR CON EL SVR
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     res.header("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE, OPTIONS");
     next();
