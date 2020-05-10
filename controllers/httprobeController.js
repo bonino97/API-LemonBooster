@@ -69,7 +69,6 @@ function getHttprobe(req,res){
     });
 }
 
-
 //=====================================================================
 // CALL HTTPROBE EXECUTE FUNCTION
 //=====================================================================
@@ -99,7 +98,7 @@ function callHttprobe(req,res){
             let programDir = program.programDir;            
             let subdomainsDirectory = `${program.programDir}Findomain/`;
             let fileName = httprobe.findoFile.split('-');
-            
+            let allendpointsDir = saveAllEndpointsDirectory(programDir);
 
             httprobe.url = fileName[1];
             httprobe.httprobeDirectory = saveHttprobeDirectory(programDir);
@@ -111,7 +110,7 @@ function callHttprobe(req,res){
             
             console.log('################################################');
 
-            httprobe.syntax = executeHttprobe(httprobe, subdomainsDirectory);
+            httprobe.syntax = executeHttprobe(httprobe, subdomainsDirectory, allendpointsDir);
             
             httprobe.save((err,httprobeSaved) => {
                 
@@ -155,14 +154,19 @@ function callHttprobe(req,res){
     }
 }
 
-function executeHttprobe(httprobe, subdomainsDirectory){
+function executeHttprobe(httprobe, subdomainsDirectory, allendpointsDir){
 
-    let syntax = String;
+    let syntax = '';
     let file = `${subdomainsDirectory}${httprobe.findoFile}`;
+    let allEndpointsFile = `${allendpointsDir}AllEndpoints.txt`;
+    let httprobeFile = `${httprobe.httprobeDirectory}httprobe-${httprobe.url}-${date}.txt`;
 
-    syntax = `cat ${file} | ~/go/bin/httprobe | tee -a ${httprobe.httprobeDirectory}httprobe-${httprobe.url}-${date}.txt`;
+    syntax = `cat ${file} | ~/go/bin/httprobe | tee -a ${httprobeFile}`;
 
     shell.exec(syntax);
+
+    shell.exec(`cat ${httprobeFile} >> ${allEndpointsFile}`);
+    shell.exec(`sort -u ${allEndpointsFile} -o ${allEndpointsFile}`);
 
     return syntax;
 
@@ -185,6 +189,27 @@ function getHttprobeFiles(subdomainsDirectory) {
         console.log("Doesn't exist a Findomain Scan yet!");
         return false;
     }
+}
+
+function saveAllEndpointsDirectory(programDir){
+
+    let crawlersDir = `${programDir}Crawlers/`;
+
+    if( fs.existsSync(crawlersDir) ){
+        console.log('Crawler Directory Exists.');
+    } else { 
+        shell.exec(`mkdir ${crawlersDir}`)
+    }
+
+    let allendpointsDir = `${crawlersDir}AllEndpoints/`;
+
+    if( fs.existsSync(allendpointsDir) ){
+        console.log('Params Directory Exists.');
+    } else { 
+        shell.exec(`mkdir ${allendpointsDir}`)
+    }
+
+    return allendpointsDir;
 }
 
 function saveHttprobeDirectory(programDir){

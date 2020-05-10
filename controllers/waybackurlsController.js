@@ -101,15 +101,17 @@ function CallWaybackurls(req,res){
             }
 
             let programDir = program.programDir;  
+            let paramsDir = SaveParamsDirectory(programDir);
 
             waybackurls.waybackurlsDirectory = SaveWaybackurlsrDirectory(programDir);
 
+            let allEndpointsDir = SaveAllEndpointsDirectory(waybackurls.waybackurlsDirectory);
 
             console.log('##################################################');
             console.log('###############-WAYBACKURLS STARTED.-#############');
             console.log('##################################################');
 
-            waybackurls.syntax = ExecuteWaybackurls(waybackurls.findomainFile, programDir, waybackurls);
+            waybackurls.syntax = ExecuteWaybackurls(waybackurls.findomainFile, programDir, waybackurls, paramsDir, allEndpointsDir);
 
             
             console.log('#################################################');
@@ -186,8 +188,33 @@ function SaveWaybackurlsrDirectory(programDir){
 
 }
 
+function SaveParamsDirectory(programDir){
 
-function ExecuteWaybackurls(findomainFile, programDir, waybackurls){
+    let paramsDir = `${programDir}ParamsFiles/`;
+
+    if( fs.existsSync(paramsDir) ){
+        console.log('Params Directory Exists.');
+    } else { 
+        shell.exec(`mkdir ${paramsDir}`)
+    }
+
+    return paramsDir;
+}
+
+function SaveAllEndpointsDirectory(crawlersDir){
+
+    let allendpointsDir = `${crawlersDir}AllEndpoints/`;
+
+    if( fs.existsSync(allendpointsDir) ){
+        console.log('Params Directory Exists.');
+    } else { 
+        shell.exec(`mkdir ${allendpointsDir}`)
+    }
+
+    return allendpointsDir;
+}
+
+function ExecuteWaybackurls(findomainFile, programDir, waybackurls, paramsDir, allEndpointsDir){
 
     let syntax = '';
     let findomainDir = `${programDir}Findomain/`;
@@ -200,145 +227,148 @@ function ExecuteWaybackurls(findomainFile, programDir, waybackurls){
         shell.exec(syntax);
         shell.exec(`sort -u ${waybackurlFile} -o ${waybackurlFile}`);
 
-        shell.exec(`cat ${waybackurlFile} | grep "forward=" >> ${waybackurls.waybackurlsDirectory}OpenRedirectsParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "dest=" >> ${waybackurls.waybackurlsDirectory}OpenRedirectsParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "redirect=" >> ${waybackurls.waybackurlsDirectory}OpenRedirectsParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "uri=" >> ${waybackurls.waybackurlsDirectory}OpenRedirectsParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "path=" >> ${waybackurls.waybackurlsDirectory}OpenRedirectsParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "continue=" >> ${waybackurls.waybackurlsDirectory}OpenRedirectsParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "url=" >> ${waybackurls.waybackurlsDirectory}OpenRedirectsParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "window=" >> ${waybackurls.waybackurlsDirectory}OpenRedirectsParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "to=" >> ${waybackurls.waybackurlsDirectory}OpenRedirectsParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "out=" >> ${waybackurls.waybackurlsDirectory}OpenRedirectsParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "view=" >> ${waybackurls.waybackurlsDirectory}OpenRedirectsParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "dir=" >> ${waybackurls.waybackurlsDirectory}OpenRedirectsParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "show=" >> ${waybackurls.waybackurlsDirectory}OpenRedirectsParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "navigation=" >> ${waybackurls.waybackurlsDirectory}OpenRedirectsParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "open=" >> ${waybackurls.waybackurlsDirectory}OpenRedirectsParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "domain=" >> ${waybackurls.waybackurlsDirectory}OpenRedirectsParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "callback=" >> ${waybackurls.waybackurlsDirectory}OpenRedirectsParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "return=" >> ${waybackurls.waybackurlsDirectory}OpenRedirectsParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "page=" >> ${waybackurls.waybackurlsDirectory}OpenRedirectsParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "feed=" >> ${waybackurls.waybackurlsDirectory}OpenRedirectsParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "host=" >> ${waybackurls.waybackurlsDirectory}OpenRedirectsParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "site=" >> ${waybackurls.waybackurlsDirectory}OpenRedirectsParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "html=" >> ${waybackurls.waybackurlsDirectory}OpenRedirectsParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "reference=" >> ${waybackurls.waybackurlsDirectory}OpenRedirectsParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "file=" >> ${waybackurls.waybackurlsDirectory}OpenRedirectsParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "return_to=" >> ${waybackurls.waybackurlsDirectory}OpenRedirectsParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "fetch=" >> ${waybackurls.waybackurlsDirectory}OpenRedirectsParams.txt`);
+        shell.exec(`cat ${waybackurlFile} >> ${allEndpointsDir}/AllEndpoints.txt`);
+        shell.exec(`sort -u ${allEndpointsDir}/AllEndpoints.txt -o ${allEndpointsDir}/AllEndpoints.txt`);
 
-        shell.exec(`cat ${waybackurlFile} | grep "select=" >> ${waybackurls.waybackurlsDirectory}SQLiParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "report=" >> ${waybackurls.waybackurlsDirectory}SQLiParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "role=" >> ${waybackurls.waybackurlsDirectory}SQLiParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "update=" >> ${waybackurls.waybackurlsDirectory}SQLiParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "query=" >> ${waybackurls.waybackurlsDirectory}SQLiParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "user=" >> ${waybackurls.waybackurlsDirectory}SQLiParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "name=" >> ${waybackurls.waybackurlsDirectory}SQLiParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "sort=" >> ${waybackurls.waybackurlsDirectory}SQLiParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "where=" >> ${waybackurls.waybackurlsDirectory}SQLiParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "search=" >> ${waybackurls.waybackurlsDirectory}SQLiParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "params=" >> ${waybackurls.waybackurlsDirectory}SQLiParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "process=" >> ${waybackurls.waybackurlsDirectory}SQLiParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "row=" >> ${waybackurls.waybackurlsDirectory}SQLiParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "view=" >> ${waybackurls.waybackurlsDirectory}SQLiParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "table=" >> ${waybackurls.waybackurlsDirectory}SQLiParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "from=" >> ${waybackurls.waybackurlsDirectory}SQLiParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "sel=" >> ${waybackurls.waybackurlsDirectory}SQLiParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "results=" >> ${waybackurls.waybackurlsDirectory}SQLiParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "sleep=" >> ${waybackurls.waybackurlsDirectory}SQLiParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "fetch=" >> ${waybackurls.waybackurlsDirectory}SQLiParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "order=" >> ${waybackurls.waybackurlsDirectory}SQLiParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "keyword=" >> ${waybackurls.waybackurlsDirectory}SQLiParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "column=" >> ${waybackurls.waybackurlsDirectory}SQLiParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "field=" >> ${waybackurls.waybackurlsDirectory}SQLiParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "delete=" >> ${waybackurls.waybackurlsDirectory}SQLiParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "filter=" >> ${waybackurls.waybackurlsDirectory}SQLiParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "alter=" >> ${waybackurls.waybackurlsDirectory}SQLiParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "create=" >> ${waybackurls.waybackurlsDirectory}SQLiParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "forward=" >> ${paramsDir}OpenRedirectsParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "dest=" >> ${paramsDir}OpenRedirectsParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "redirect=" >> ${paramsDir}OpenRedirectsParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "uri=" >> ${paramsDir}OpenRedirectsParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "path=" >> ${paramsDir}OpenRedirectsParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "continue=" >> ${paramsDir}OpenRedirectsParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "url=" >> ${paramsDir}OpenRedirectsParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "window=" >> ${paramsDir}OpenRedirectsParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "to=" >> ${paramsDir}OpenRedirectsParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "out=" >> ${paramsDir}OpenRedirectsParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "view=" >> ${paramsDir}OpenRedirectsParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "dir=" >> ${paramsDir}OpenRedirectsParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "show=" >> ${paramsDir}OpenRedirectsParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "navigation=" >> ${paramsDir}OpenRedirectsParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "open=" >> ${paramsDir}OpenRedirectsParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "domain=" >> ${paramsDir}OpenRedirectsParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "callback=" >> ${paramsDir}OpenRedirectsParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "return=" >> ${paramsDir}OpenRedirectsParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "page=" >> ${paramsDir}OpenRedirectsParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "feed=" >> ${paramsDir}OpenRedirectsParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "host=" >> ${paramsDir}OpenRedirectsParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "site=" >> ${paramsDir}OpenRedirectsParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "html=" >> ${paramsDir}OpenRedirectsParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "reference=" >> ${paramsDir}OpenRedirectsParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "file=" >> ${paramsDir}OpenRedirectsParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "return_to=" >> ${paramsDir}OpenRedirectsParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "fetch=" >> ${paramsDir}OpenRedirectsParams.txt`);
 
-        shell.exec(`cat ${waybackurlFile} | grep "file=" >> ${waybackurls.waybackurlsDirectory}LFIParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "document=" >> ${waybackurls.waybackurlsDirectory}LFIParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "pg=" >> ${waybackurls.waybackurlsDirectory}LFIParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "root=" >> ${waybackurls.waybackurlsDirectory}LFIParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "folder=" >> ${waybackurls.waybackurlsDirectory}LFIParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "path=" >> ${waybackurls.waybackurlsDirectory}LFIParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "style=" >> ${waybackurls.waybackurlsDirectory}LFIParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "pdf=" >> ${waybackurls.waybackurlsDirectory}LFIParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "template=" >> ${waybackurls.waybackurlsDirectory}LFIParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "php_path=" >> ${waybackurls.waybackurlsDirectory}LFIParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "doc=" >> ${waybackurls.waybackurlsDirectory}LFIParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "select=" >> ${paramsDir}SQLiParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "report=" >> ${paramsDir}SQLiParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "role=" >> ${paramsDir}SQLiParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "update=" >> ${paramsDir}SQLiParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "query=" >> ${paramsDir}SQLiParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "user=" >> ${paramsDir}SQLiParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "name=" >> ${paramsDir}SQLiParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "sort=" >> ${paramsDir}SQLiParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "where=" >> ${paramsDir}SQLiParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "search=" >> ${paramsDir}SQLiParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "params=" >> ${paramsDir}SQLiParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "process=" >> ${paramsDir}SQLiParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "row=" >> ${paramsDir}SQLiParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "view=" >> ${paramsDir}SQLiParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "table=" >> ${paramsDir}SQLiParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "from=" >> ${paramsDir}SQLiParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "sel=" >> ${paramsDir}SQLiParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "results=" >> ${paramsDir}SQLiParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "sleep=" >> ${paramsDir}SQLiParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "fetch=" >> ${paramsDir}SQLiParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "order=" >> ${paramsDir}SQLiParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "keyword=" >> ${paramsDir}SQLiParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "column=" >> ${paramsDir}SQLiParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "field=" >> ${paramsDir}SQLiParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "delete=" >> ${paramsDir}SQLiParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "filter=" >> ${paramsDir}SQLiParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "alter=" >> ${paramsDir}SQLiParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "create=" >> ${paramsDir}SQLiParams.txt`);
 
-        shell.exec(`cat ${waybackurlFile} | grep "access=" >> ${waybackurls.waybackurlsDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "admin=" >> ${waybackurls.waybackurlsDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "dbg=" >> ${waybackurls.waybackurlsDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "debug=" >> ${waybackurls.waybackurlsDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "edit=" >> ${waybackurls.waybackurlsDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "grant=" >> ${waybackurls.waybackurlsDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "test=" >> ${waybackurls.waybackurlsDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "alter=" >> ${waybackurls.waybackurlsDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "clone=">> ${waybackurls.waybackurlsDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "create=" >> ${waybackurls.waybackurlsDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "delete=" >> ${waybackurls.waybackurlsDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "disable=" >> ${waybackurls.waybackurlsDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "enable=" >> ${waybackurls.waybackurlsDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "exec=" >> ${waybackurls.waybackurlsDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "execute=" >> ${waybackurls.waybackurlsDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "load=" >> ${waybackurls.waybackurlsDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "make=" >> ${waybackurls.waybackurlsDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "modify=" >> ${waybackurls.waybackurlsDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "rename=" >> ${waybackurls.waybackurlsDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "reset=" >> ${waybackurls.waybackurlsDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "shell=" >> ${waybackurls.waybackurlsDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "toggle=" >> ${waybackurls.waybackurlsDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "adm=" >> ${waybackurls.waybackurlsDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "root=" >> ${waybackurls.waybackurlsDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "cfg=" >> ${waybackurls.waybackurlsDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "dest=" >> ${waybackurls.waybackurlsDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "redirect=" >> ${waybackurls.waybackurlsDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "uri=" >> ${waybackurls.waybackurlsDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "path=" >> ${waybackurls.waybackurlsDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "continue=" >> ${waybackurls.waybackurlsDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "url=" >> ${waybackurls.waybackurlsDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "window=" >> ${waybackurls.waybackurlsDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "next=" >> ${waybackurls.waybackurlsDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "data=" >> ${waybackurls.waybackurlsDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "reference=" >> ${waybackurls.waybackurlsDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "site=" >> ${waybackurls.waybackurlsDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "html=" >> ${waybackurls.waybackurlsDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "val=" >> ${waybackurls.waybackurlsDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "validate=" >> ${waybackurls.waybackurlsDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "domain=" >> ${waybackurls.waybackurlsDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "callback=" >> ${waybackurls.waybackurlsDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "return=" >> ${waybackurls.waybackurlsDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "page=" >> ${waybackurls.waybackurlsDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "feed=" >> ${waybackurls.waybackurlsDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "host=" >> ${waybackurls.waybackurlsDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "port=" >> ${waybackurls.waybackurlsDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "to=" >> ${waybackurls.waybackurlsDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "out=" >> ${waybackurls.waybackurlsDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "view=" >> ${waybackurls.waybackurlsDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "dir=" >> ${waybackurls.waybackurlsDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "show=" >> ${waybackurls.waybackurlsDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "navigation=" >> ${waybackurls.waybackurlsDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "open=" >> ${waybackurls.waybackurlsDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "file=" >> ${waybackurls.waybackurlsDirectory}SSRFParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "file=" >> ${paramsDir}LFIParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "document=" >> ${paramsDir}LFIParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "pg=" >> ${paramsDir}LFIParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "root=" >> ${paramsDir}LFIParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "folder=" >> ${paramsDir}LFIParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "path=" >> ${paramsDir}LFIParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "style=" >> ${paramsDir}LFIParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "pdf=" >> ${paramsDir}LFIParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "template=" >> ${paramsDir}LFIParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "php_path=" >> ${paramsDir}LFIParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "doc=" >> ${paramsDir}LFIParams.txt`);
 
-        shell.exec(`cat ${waybackurlFile} | grep "daemon=" >> ${waybackurls.waybackurlsDirectory}RCEParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "upload=" >> ${waybackurls.waybackurlsDirectory}RCEParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "dir=" >> ${waybackurls.waybackurlsDirectory}RCEParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "execute=" >> ${waybackurls.waybackurlsDirectory}RCEParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "download=" >> ${waybackurls.waybackurlsDirectory}RCEParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "log=" >> ${waybackurls.waybackurlsDirectory}RCEParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "ip=" >> ${waybackurls.waybackurlsDirectory}RCEParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "cli=" >> ${waybackurls.waybackurlsDirectory}RCEParams.txt`);
-        shell.exec(`cat ${waybackurlFile} | grep "cmd=" >> ${waybackurls.waybackurlsDirectory}RCEParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "access=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "admin=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "dbg=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "debug=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "edit=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "grant=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "test=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "alter=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "clone=">> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "create=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "delete=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "disable=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "enable=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "exec=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "execute=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "load=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "make=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "modify=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "rename=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "reset=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "shell=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "toggle=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "adm=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "root=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "cfg=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "dest=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "redirect=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "uri=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "path=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "continue=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "url=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "window=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "next=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "data=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "reference=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "site=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "html=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "val=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "validate=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "domain=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "callback=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "return=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "page=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "feed=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "host=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "port=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "to=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "out=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "view=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "dir=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "show=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "navigation=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "open=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "file=" >> ${paramsDir}SSRFParams.txt`);
 
-        shell.exec(`sort -u ${waybackurls.waybackurlsDirectory}OpenRedirectsParams.txt -o ${waybackurls.waybackurlsDirectory}OpenRedirectsParams.txt`);
-        shell.exec(`sort -u ${waybackurls.waybackurlsDirectory}SQLiParams.txt -o ${waybackurls.waybackurlsDirectory}SQLiParams.txt`);
-        shell.exec(`sort -u ${waybackurls.waybackurlsDirectory}LFIParams.txt -o ${waybackurls.waybackurlsDirectory}LFIParams.txt`);
-        shell.exec(`sort -u ${waybackurls.waybackurlsDirectory}SSRFParams.txt -o ${waybackurls.waybackurlsDirectory}SSRFParams.txt`);
-        shell.exec(`sort -u ${waybackurls.waybackurlsDirectory}RCEParams.txt -o ${waybackurls.waybackurlsDirectory}RCEParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "daemon=" >> ${paramsDir}RCEParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "upload=" >> ${paramsDir}RCEParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "dir=" >> ${paramsDir}RCEParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "execute=" >> ${paramsDir}RCEParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "download=" >> ${paramsDir}RCEParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "log=" >> ${paramsDir}RCEParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "ip=" >> ${paramsDir}RCEParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "cli=" >> ${paramsDir}RCEParams.txt`);
+        shell.exec(`cat ${waybackurlFile} | grep "cmd=" >> ${paramsDir}RCEParams.txt`);
+
+        shell.exec(`sort -u ${paramsDir}OpenRedirectsParams.txt -o ${paramsDir}OpenRedirectsParams.txt`);
+        shell.exec(`sort -u ${paramsDir}SQLiParams.txt -o ${paramsDir}SQLiParams.txt`);
+        shell.exec(`sort -u ${paramsDir}LFIParams.txt -o ${paramsDir}LFIParams.txt`);
+        shell.exec(`sort -u ${paramsDir}SSRFParams.txt -o ${paramsDir}SSRFParams.txt`);
+        shell.exec(`sort -u ${paramsDir}RCEParams.txt -o ${paramsDir}RCEParams.txt`);
 
     }
     catch(err){

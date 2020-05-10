@@ -146,7 +146,7 @@ function callGetJs(req,res){
             let programDir = program.programDir;  
             let getjsName = getJs.link.split('/')[2];
 
-            console.log(getjsName)
+            let allendpointsDir = saveAllEndpointsDirectory(programDir);
 
             getJs.getjsDirectory = saveGetJsDirectory(programDir);
 
@@ -157,7 +157,7 @@ function callGetJs(req,res){
             console.log('##################################################');
 
 
-            getJs.syntax = executeGetJs(getJs, getjsName);
+            getJs.syntax = executeGetJs(getJs, getjsName, allendpointsDir);
 
             getJs.save( (err, getJsSaved) => {
                 if(err){
@@ -248,17 +248,42 @@ function saveGetJsDirectory(programDir){
     return getJsDir;
 }
 
+function saveAllEndpointsDirectory(programDir){
 
-function executeGetJs(getJs, getJsName){
+    let crawlersDir = `${programDir}Crawlers/`;
+
+    if( fs.existsSync(crawlersDir) ){
+        console.log('Crawler Directory Exists.');
+    } else { 
+        shell.exec(`mkdir ${crawlersDir}`)
+    }
+
+    let allendpointsDir = `${crawlersDir}AllEndpoints/`;
+
+    if( fs.existsSync(allendpointsDir) ){
+        console.log('Params Directory Exists.');
+    } else { 
+        shell.exec(`mkdir ${allendpointsDir}`)
+    }
+
+    return allendpointsDir;
+}
+
+function executeGetJs(getJs, getJsName, allendpointsDir){
 
     try{
 
-        let syntax = String;
+        let syntax = '';
         let getJsFile = `${getJs.getjsDirectory}getJs-${getJsName}-${date}.txt`;
+        let allEndpointsFile = `${allendpointsDir}AllEndpoints.txt`;
 
-        syntax = `~/go/bin/getJS -url=${getJs.link} -resolve -complete -output=${getJsFile}`;
+        syntax = `~/go/bin/getJS -url=${getJs.link} -complete -resolve -output=${getJsFile}`;
 
         shell.exec(syntax);
+
+        shell.exec(`cat ${getJsFile} >> ${allEndpointsFile}`);
+        shell.exec(`sort -u ${allEndpointsFile} -o ${allEndpointsFile}`);
+
         return syntax;
 
     }

@@ -18,7 +18,7 @@ let date = dateFormat(new Date(), "yyyy-mm-dd-HH-MM");
 // TEST ENDPOINTS
 //=====================================================================
 
-function testHakrawler(req,res){
+function TestHakrawler(req,res){
     res.json('GET Hakrawler - Web Crawling Enabled.');
 }
 
@@ -26,7 +26,7 @@ function testHakrawler(req,res){
 // OBTAIN HAKRAWLER PROGRAM WITH PROGRAMID
 //=====================================================================
 
-function getHakrawlerFiles(req,res){
+function GetHakrawlerFiles(req,res){
     let id = req.params.id;
 
     try{
@@ -51,7 +51,7 @@ function getHakrawlerFiles(req,res){
                 });
             }
     
-            files = getFindomainFiles(findomainDir);
+            files = GetFindomainFiles(findomainDir);
             
             if(!files){
                 return res.status(500).json({
@@ -78,7 +78,7 @@ function getHakrawlerFiles(req,res){
 // CALL HAKRAWLER EXECUTE FUNCTION
 //=====================================================================
 
-function callHakrawler(req,res){
+function CallHakrawler(req,res){
 
     var body = req.body;
 
@@ -101,14 +101,17 @@ function callHakrawler(req,res){
 
             let programDir = program.programDir;  
 
-            hakrawler.hakrawlerDirectory = saveHakrawlerDirectory(programDir);
+            let paramsDir = SaveParamsDirectory(programDir);
 
+            hakrawler.hakrawlerDirectory = SaveHakrawlerDirectory(programDir);
+
+            let allEndpointsDir = SaveAllEndpointsDirectory(hakrawler.hakrawlerDirectory);
 
             console.log('##################################################');
             console.log('###############-HAKRAWLER STARTED.-###############');
             console.log('##################################################');
 
-            hakrawler.syntax = executeHakrawler(hakrawler.findomainFile, programDir, hakrawler);
+            hakrawler.syntax = ExecuteHakrawler(hakrawler.findomainFile, programDir, hakrawler, paramsDir, allEndpointsDir);
 
             
             console.log('#################################################');
@@ -155,7 +158,7 @@ function callHakrawler(req,res){
 // FUNCTIONS
 //=====================================================================
 
-function getFindomainFiles(findomainDir){
+function GetFindomainFiles(findomainDir){
     
     try{
         let findomainArray = [];
@@ -171,7 +174,7 @@ function getFindomainFiles(findomainDir){
     }
 }
 
-function saveHakrawlerDirectory(programDir){
+function SaveHakrawlerDirectory(programDir){
 
     let crawlersDir = `${programDir}Crawlers/`;
 
@@ -185,8 +188,34 @@ function saveHakrawlerDirectory(programDir){
 
 }
 
+function SaveParamsDirectory(programDir){
 
-function executeHakrawler(findomainFile, programDir, hakrawler){
+    let paramsDir = `${programDir}ParamsFiles/`;
+
+    if( fs.existsSync(paramsDir) ){
+        console.log('Params Directory Exists.');
+    } else { 
+        shell.exec(`mkdir ${paramsDir}`)
+    }
+
+    return paramsDir;
+}
+
+function SaveAllEndpointsDirectory(crawlersDir){
+
+    let allendpointsDir = `${crawlersDir}AllEndpoints/`;
+
+    if( fs.existsSync(allendpointsDir) ){
+        console.log('Params Directory Exists.');
+    } else { 
+        shell.exec(`mkdir ${allendpointsDir}`)
+    }
+
+    return allendpointsDir;
+}
+
+
+function ExecuteHakrawler(findomainFile, programDir, hakrawler, paramsDir, allEndpointsDir){
 
     let syntax = '';
     let findomainDir = `${programDir}Findomain/`;
@@ -194,150 +223,153 @@ function executeHakrawler(findomainFile, programDir, hakrawler){
 
     try{
 
-        syntax = `cat ${findomainDir}${findomainFile} | ~/go/bin/hakrawler -plain -depth 3 | tee -a ${hakrawlerFile}`;
+        syntax = `cat ${findomainDir}${findomainFile} | ~/go/bin/hakrawler -plain -depth 2 | tee -a ${hakrawlerFile}`;
 
         shell.exec(syntax);
         shell.exec(`sort -u ${hakrawlerFile} -o ${hakrawlerFile}`);
 
-        shell.exec(`cat ${hakrawlerFile} | grep "forward=" >> ${hakrawler.hakrawlerDirectory}OpenRedirectsParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "dest=" >> ${hakrawler.hakrawlerDirectory}OpenRedirectsParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "redirect=" >> ${hakrawler.hakrawlerDirectory}OpenRedirectsParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "uri=" >> ${hakrawler.hakrawlerDirectory}OpenRedirectsParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "path=" >> ${hakrawler.hakrawlerDirectory}OpenRedirectsParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "continue=" >> ${hakrawler.hakrawlerDirectory}OpenRedirectsParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "url=" >> ${hakrawler.hakrawlerDirectory}OpenRedirectsParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "window=" >> ${hakrawler.hakrawlerDirectory}OpenRedirectsParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "to=" >> ${hakrawler.hakrawlerDirectory}OpenRedirectsParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "out=" >> ${hakrawler.hakrawlerDirectory}OpenRedirectsParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "view=" >> ${hakrawler.hakrawlerDirectory}OpenRedirectsParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "dir=" >> ${hakrawler.hakrawlerDirectory}OpenRedirectsParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "show=" >> ${hakrawler.hakrawlerDirectory}OpenRedirectsParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "navigation=" >> ${hakrawler.hakrawlerDirectory}OpenRedirectsParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "open=" >> ${hakrawler.hakrawlerDirectory}OpenRedirectsParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "domain=" >> ${hakrawler.hakrawlerDirectory}OpenRedirectsParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "callback=" >> ${hakrawler.hakrawlerDirectory}OpenRedirectsParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "return=" >> ${hakrawler.hakrawlerDirectory}OpenRedirectsParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "page=" >> ${hakrawler.hakrawlerDirectory}OpenRedirectsParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "feed=" >> ${hakrawler.hakrawlerDirectory}OpenRedirectsParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "host=" >> ${hakrawler.hakrawlerDirectory}OpenRedirectsParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "site=" >> ${hakrawler.hakrawlerDirectory}OpenRedirectsParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "html=" >> ${hakrawler.hakrawlerDirectory}OpenRedirectsParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "reference=" >> ${hakrawler.hakrawlerDirectory}OpenRedirectsParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "file=" >> ${hakrawler.hakrawlerDirectory}OpenRedirectsParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "return_to=" >> ${hakrawler.hakrawlerDirectory}OpenRedirectsParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "fetch=" >> ${hakrawler.hakrawlerDirectory}OpenRedirectsParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} >> ${allEndpointsDir}/AllEndpoints.txt`);
+        shell.exec(`sort -u ${allEndpointsDir}/AllEndpoints.txt -o ${allEndpointsDir}/AllEndpoints.txt`);
 
-        shell.exec(`cat ${hakrawlerFile} | grep "select=" >> ${hakrawler.hakrawlerDirectory}SQLiParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "report=" >> ${hakrawler.hakrawlerDirectory}SQLiParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "role=" >> ${hakrawler.hakrawlerDirectory}SQLiParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "update=" >> ${hakrawler.hakrawlerDirectory}SQLiParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "query=" >> ${hakrawler.hakrawlerDirectory}SQLiParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "user=" >> ${hakrawler.hakrawlerDirectory}SQLiParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "name=" >> ${hakrawler.hakrawlerDirectory}SQLiParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "sort=" >> ${hakrawler.hakrawlerDirectory}SQLiParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "where=" >> ${hakrawler.hakrawlerDirectory}SQLiParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "search=" >> ${hakrawler.hakrawlerDirectory}SQLiParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "params=" >> ${hakrawler.hakrawlerDirectory}SQLiParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "process=" >> ${hakrawler.hakrawlerDirectory}SQLiParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "row=" >> ${hakrawler.hakrawlerDirectory}SQLiParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "view=" >> ${hakrawler.hakrawlerDirectory}SQLiParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "table=" >> ${hakrawler.hakrawlerDirectory}SQLiParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "from=" >> ${hakrawler.hakrawlerDirectory}SQLiParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "sel=" >> ${hakrawler.hakrawlerDirectory}SQLiParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "results=" >> ${hakrawler.hakrawlerDirectory}SQLiParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "sleep=" >> ${hakrawler.hakrawlerDirectory}SQLiParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "fetch=" >> ${hakrawler.hakrawlerDirectory}SQLiParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "order=" >> ${hakrawler.hakrawlerDirectory}SQLiParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "keyword=" >> ${hakrawler.hakrawlerDirectory}SQLiParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "column=" >> ${hakrawler.hakrawlerDirectory}SQLiParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "field=" >> ${hakrawler.hakrawlerDirectory}SQLiParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "delete=" >> ${hakrawler.hakrawlerDirectory}SQLiParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "filter=" >> ${hakrawler.hakrawlerDirectory}SQLiParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "alter=" >> ${hakrawler.hakrawlerDirectory}SQLiParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "create=" >> ${hakrawler.hakrawlerDirectory}SQLiParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "forward=" >> ${paramsDir}OpenRedirectsParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "dest=" >> ${paramsDir}OpenRedirectsParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "redirect=" >> ${paramsDir}OpenRedirectsParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "uri=" >> ${paramsDir}OpenRedirectsParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "path=" >> ${paramsDir}OpenRedirectsParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "continue=" >> ${paramsDir}OpenRedirectsParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "url=" >> ${paramsDir}OpenRedirectsParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "window=" >> ${paramsDir}OpenRedirectsParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "to=" >> ${paramsDir}OpenRedirectsParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "out=" >> ${paramsDir}OpenRedirectsParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "view=" >> ${paramsDir}OpenRedirectsParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "dir=" >> ${paramsDir}OpenRedirectsParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "show=" >> ${paramsDir}OpenRedirectsParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "navigation=" >> ${paramsDir}OpenRedirectsParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "open=" >> ${paramsDir}OpenRedirectsParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "domain=" >> ${paramsDir}OpenRedirectsParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "callback=" >> ${paramsDir}OpenRedirectsParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "return=" >> ${paramsDir}OpenRedirectsParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "page=" >> ${paramsDir}OpenRedirectsParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "feed=" >> ${paramsDir}OpenRedirectsParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "host=" >> ${paramsDir}OpenRedirectsParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "site=" >> ${paramsDir}OpenRedirectsParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "html=" >> ${paramsDir}OpenRedirectsParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "reference=" >> ${paramsDir}OpenRedirectsParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "file=" >> ${paramsDir}OpenRedirectsParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "return_to=" >> ${paramsDir}OpenRedirectsParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "fetch=" >> ${paramsDir}OpenRedirectsParams.txt`);
 
-        shell.exec(`cat ${hakrawlerFile} | grep "file=" >> ${hakrawler.hakrawlerDirectory}LFIParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "document=" >> ${hakrawler.hakrawlerDirectory}LFIParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "pg=" >> ${hakrawler.hakrawlerDirectory}LFIParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "root=" >> ${hakrawler.hakrawlerDirectory}LFIParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "folder=" >> ${hakrawler.hakrawlerDirectory}LFIParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "path=" >> ${hakrawler.hakrawlerDirectory}LFIParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "style=" >> ${hakrawler.hakrawlerDirectory}LFIParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "pdf=" >> ${hakrawler.hakrawlerDirectory}LFIParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "template=" >> ${hakrawler.hakrawlerDirectory}LFIParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "php_path=" >> ${hakrawler.hakrawlerDirectory}LFIParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "doc=" >> ${hakrawler.hakrawlerDirectory}LFIParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "select=" >> ${paramsDir}SQLiParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "report=" >> ${paramsDir}SQLiParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "role=" >> ${paramsDir}SQLiParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "update=" >> ${paramsDir}SQLiParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "query=" >> ${paramsDir}SQLiParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "user=" >> ${paramsDir}SQLiParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "name=" >> ${paramsDir}SQLiParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "sort=" >> ${paramsDir}SQLiParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "where=" >> ${paramsDir}SQLiParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "search=" >> ${paramsDir}SQLiParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "params=" >> ${paramsDir}SQLiParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "process=" >> ${paramsDir}SQLiParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "row=" >> ${paramsDir}SQLiParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "view=" >> ${paramsDir}SQLiParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "table=" >> ${paramsDir}SQLiParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "from=" >> ${paramsDir}SQLiParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "sel=" >> ${paramsDir}SQLiParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "results=" >> ${paramsDir}SQLiParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "sleep=" >> ${paramsDir}SQLiParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "fetch=" >> ${paramsDir}SQLiParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "order=" >> ${paramsDir}SQLiParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "keyword=" >> ${paramsDir}SQLiParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "column=" >> ${paramsDir}SQLiParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "field=" >> ${paramsDir}SQLiParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "delete=" >> ${paramsDir}SQLiParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "filter=" >> ${paramsDir}SQLiParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "alter=" >> ${paramsDir}SQLiParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "create=" >> ${paramsDir}SQLiParams.txt`);
 
-        shell.exec(`cat ${hakrawlerFile} | grep "access=" >> ${hakrawler.hakrawlerDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "admin=" >> ${hakrawler.hakrawlerDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "dbg=" >> ${hakrawler.hakrawlerDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "debug=" >> ${hakrawler.hakrawlerDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "edit=" >> ${hakrawler.hakrawlerDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "grant=" >> ${hakrawler.hakrawlerDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "test=" >> ${hakrawler.hakrawlerDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "alter=" >> ${hakrawler.hakrawlerDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "clone=">> ${hakrawler.hakrawlerDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "create=" >> ${hakrawler.hakrawlerDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "delete=" >> ${hakrawler.hakrawlerDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "disable=" >> ${hakrawler.hakrawlerDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "enable=" >> ${hakrawler.hakrawlerDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "exec=" >> ${hakrawler.hakrawlerDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "execute=" >> ${hakrawler.hakrawlerDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "load=" >> ${hakrawler.hakrawlerDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "make=" >> ${hakrawler.hakrawlerDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "modify=" >> ${hakrawler.hakrawlerDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "rename=" >> ${hakrawler.hakrawlerDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "reset=" >> ${hakrawler.hakrawlerDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "shell=" >> ${hakrawler.hakrawlerDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "toggle=" >> ${hakrawler.hakrawlerDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "adm=" >> ${hakrawler.hakrawlerDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "root=" >> ${hakrawler.hakrawlerDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "cfg=" >> ${hakrawler.hakrawlerDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "dest=" >> ${hakrawler.hakrawlerDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "redirect=" >> ${hakrawler.hakrawlerDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "uri=" >> ${hakrawler.hakrawlerDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "path=" >> ${hakrawler.hakrawlerDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "continue=" >> ${hakrawler.hakrawlerDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "url=" >> ${hakrawler.hakrawlerDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "window=" >> ${hakrawler.hakrawlerDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "next=" >> ${hakrawler.hakrawlerDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "data=" >> ${hakrawler.hakrawlerDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "reference=" >> ${hakrawler.hakrawlerDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "site=" >> ${hakrawler.hakrawlerDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "html=" >> ${hakrawler.hakrawlerDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "val=" >> ${hakrawler.hakrawlerDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "validate=" >> ${hakrawler.hakrawlerDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "domain=" >> ${hakrawler.hakrawlerDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "callback=" >> ${hakrawler.hakrawlerDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "return=" >> ${hakrawler.hakrawlerDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "page=" >> ${hakrawler.hakrawlerDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "feed=" >> ${hakrawler.hakrawlerDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "host=" >> ${hakrawler.hakrawlerDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "port=" >> ${hakrawler.hakrawlerDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "to=" >> ${hakrawler.hakrawlerDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "out=" >> ${hakrawler.hakrawlerDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "view=" >> ${hakrawler.hakrawlerDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "dir=" >> ${hakrawler.hakrawlerDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "show=" >> ${hakrawler.hakrawlerDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "navigation=" >> ${hakrawler.hakrawlerDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "open=" >> ${hakrawler.hakrawlerDirectory}SSRFParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "file=" >> ${hakrawler.hakrawlerDirectory}SSRFParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "file=" >> ${paramsDir}LFIParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "document=" >> ${paramsDir}LFIParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "pg=" >> ${paramsDir}LFIParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "root=" >> ${paramsDir}LFIParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "folder=" >> ${paramsDir}LFIParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "path=" >> ${paramsDir}LFIParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "style=" >> ${paramsDir}LFIParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "pdf=" >> ${paramsDir}LFIParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "template=" >> ${paramsDir}LFIParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "php_path=" >> ${paramsDir}LFIParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "doc=" >> ${paramsDir}LFIParams.txt`);
 
-        shell.exec(`cat ${hakrawlerFile} | grep "daemon=" >> ${hakrawler.hakrawlerDirectory}RCEParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "upload=" >> ${hakrawler.hakrawlerDirectory}RCEParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "dir=" >> ${hakrawler.hakrawlerDirectory}RCEParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "execute=" >> ${hakrawler.hakrawlerDirectory}RCEParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "download=" >> ${hakrawler.hakrawlerDirectory}RCEParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "log=" >> ${hakrawler.hakrawlerDirectory}RCEParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "ip=" >> ${hakrawler.hakrawlerDirectory}RCEParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "cli=" >> ${hakrawler.hakrawlerDirectory}RCEParams.txt`);
-        shell.exec(`cat ${hakrawlerFile} | grep "cmd=" >> ${hakrawler.hakrawlerDirectory}RCEParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "access=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "admin=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "dbg=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "debug=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "edit=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "grant=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "test=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "alter=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "clone=">> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "create=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "delete=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "disable=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "enable=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "exec=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "execute=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "load=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "make=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "modify=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "rename=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "reset=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "shell=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "toggle=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "adm=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "root=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "cfg=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "dest=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "redirect=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "uri=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "path=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "continue=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "url=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "window=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "next=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "data=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "reference=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "site=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "html=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "val=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "validate=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "domain=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "callback=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "return=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "page=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "feed=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "host=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "port=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "to=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "out=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "view=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "dir=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "show=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "navigation=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "open=" >> ${paramsDir}SSRFParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "file=" >> ${paramsDir}SSRFParams.txt`);
 
-        shell.exec(`sort -u ${hakrawler.hakrawlerDirectory}OpenRedirectsParams.txt -o ${hakrawler.hakrawlerDirectory}OpenRedirectsParams.txt`);
-        shell.exec(`sort -u ${hakrawler.hakrawlerDirectory}SQLiParams.txt -o ${hakrawler.hakrawlerDirectory}SQLiParams.txt`);
-        shell.exec(`sort -u ${hakrawler.hakrawlerDirectory}LFIParams.txt -o ${hakrawler.hakrawlerDirectory}LFIParams.txt`);
-        shell.exec(`sort -u ${hakrawler.hakrawlerDirectory}SSRFParams.txt -o ${hakrawler.hakrawlerDirectory}SSRFParams.txt`);
-        shell.exec(`sort -u ${hakrawler.hakrawlerDirectory}RCEParams.txt -o ${hakrawler.hakrawlerDirectory}RCEParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "daemon=" >> ${paramsDir}RCEParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "upload=" >> ${paramsDir}RCEParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "dir=" >> ${paramsDir}RCEParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "execute=" >> ${paramsDir}RCEParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "download=" >> ${paramsDir}RCEParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "log=" >> ${paramsDir}RCEParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "ip=" >> ${paramsDir}RCEParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "cli=" >> ${paramsDir}RCEParams.txt`);
+        shell.exec(`cat ${hakrawlerFile} | grep "cmd=" >> ${paramsDir}RCEParams.txt`);
+
+        shell.exec(`sort -u ${paramsDir}OpenRedirectsParams.txt -o ${paramsDir}OpenRedirectsParams.txt`);
+        shell.exec(`sort -u ${paramsDir}SQLiParams.txt -o ${paramsDir}SQLiParams.txt`);
+        shell.exec(`sort -u ${paramsDir}LFIParams.txt -o ${paramsDir}LFIParams.txt`);
+        shell.exec(`sort -u ${paramsDir}SSRFParams.txt -o ${paramsDir}SSRFParams.txt`);
+        shell.exec(`sort -u ${paramsDir}RCEParams.txt -o ${paramsDir}RCEParams.txt`);
 
 
         
@@ -351,8 +383,8 @@ function executeHakrawler(findomainFile, programDir, hakrawler){
 
 
 module.exports = {
-    testHakrawler,
-    getHakrawlerFiles,
-    callHakrawler
+    TestHakrawler,
+    GetHakrawlerFiles,
+    CallHakrawler
     
 }

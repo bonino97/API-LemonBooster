@@ -34,7 +34,7 @@ function getZileFiles(req,res){
     try{
         Program.findById(id, (err, program) => {
 
-            let hakrawlerDir = `${program.programDir}Hakrawler/`;
+            let crawlersDir = `${program.programDir}Crawlers/AllEndpoints/`;
             let files = [];
     
             if(err){
@@ -53,12 +53,12 @@ function getZileFiles(req,res){
                 });
             }
     
-            files = getHakrawlerFiles(hakrawlerDir);
+            files = getCrawlersFiles(crawlersDir);
 
             if(!files){
                 return res.status(500).json({
                     ok: false,
-                    message: 'Execute Hakrawler first.',
+                    message: 'Execute Crawlers first.',
                     error: err
                 });
             }
@@ -105,7 +105,7 @@ function callZile(req,res){
             }
 
             let programDir = program.programDir;  
-            let zileName = zile.file.split('-')[1];
+            let zileName = program.name;
 
             console.log(zileName)
 
@@ -175,19 +175,19 @@ function callZile(req,res){
 // FUNCTIONS
 //=====================================================================
 
-function getHakrawlerFiles(hakrawlerDir){
+function getCrawlersFiles(crawlersDir){
     
     try{
-        let hakrawlerArray = [];
+        let crawlersArray = [];
 
-        fs.readdirSync(hakrawlerDir).forEach(files => {
-            hakrawlerArray.push(files);
+        fs.readdirSync(crawlersDir).forEach(files => {
+            crawlersArray.push(files);
         });
     
-        return(hakrawlerArray);
+        return(crawlersArray);
     }
     catch(err){
-        console.log("Doesn't exist a Hakrawler Scan yet!");
+        console.log("Doesn't exist a Crawlers Scan yet!");
         return false;
     }
 
@@ -219,11 +219,12 @@ function executeZile(zile, zileName, programDir){
     try{
 
         let syntax = String;
-        let hakrawlerFile = `${programDir}Hakrawler/${zile.file}`;
+        let crawlersFile = `${programDir}Crawlers/AllEndpoints/${zile.file}`;
 
-        syntax = `cat ${hakrawlerFile} | python3 ~/tools/new-zile/zile.py --request | tee -a ${zile.zileDirectory}keys-${zileName}-${date}.txt`;
+        syntax = `cat ${crawlersFile} | python3 ~/tools/new-zile/zile.py --request | tee -a ${zile.zileDirectory}${zileName}-${date}.txt`;
 
         shell.exec(syntax);
+        
         return syntax;
 
     }

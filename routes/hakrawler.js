@@ -8,12 +8,12 @@ const app = express();
 const HakrawlerController = require('../controllers/hakrawlerController');
 
 //TEST DIRSEARCH ENDPOINT
-app.get('/', HakrawlerController.testHakrawler);
+app.get('/', HakrawlerController.TestHakrawler);
 
 //GET DIRSEARCH ENDPOINT
-app.get('/:id', HakrawlerController.getHakrawlerFiles);
+app.get('/:id', HakrawlerController.GetHakrawlerFiles);
 
 //EXECUTE DIRSEARCH
-app.post('/', HakrawlerController.callHakrawler );
+app.post('/', HakrawlerController.CallHakrawler );
 
 module.exports = app;
