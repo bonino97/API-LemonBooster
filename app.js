@@ -109,9 +109,11 @@ app.use('/', appRoutes);
 //                              BACKEND LISTENING
 ///#############################################################################
 
-app.listen(3000, () => {
+var server = app.listen(3000, () => {
     console.log('Backend: lemon-booster ~ Online');
 });
+
+server.setTimeout(10800000);
 
 ///#############################################################################
 //                              END BACKEND LISTENING

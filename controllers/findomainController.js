@@ -22,6 +22,17 @@ let date = dateFormat(new Date(), "yyyy-mm-dd-HH-MM");
 
 const goDir = '~/go/bin/';
 
+//TOOLS
+
+const gitTool = `python3 ~/tools/github-search/github-subdomains.py`;
+
+//DICTS
+const gobusterDict = `./lists/GOBUSTER-DNS.txt`;
+const altdnsDict = `./lists/ALTDNS-DICT.txt`; 
+
+//TOKEN & APIKEYS
+const gitToken = `dcef34578292f6c0cd1922d2cd1fa8146755b0ea`;
+
 //=====================================================================
 // TEST ENDPOINTS
 //=====================================================================
@@ -95,13 +106,17 @@ function executeFindomain(scope, program, programDir){
     let url = scope.trim();
 
     let findomainDir = `${programDir}Findomain/`;
+
     let findoFile = `${findomainDir}findomain-${url}-${date}.txt`;
-    let lvl2FindoFile = `${findomainDir}findomain2-${url}-${date}.txt`;
     let afinderFile = `${findomainDir}afinder-${url}-${date}.txt`;
-    let lvl2AfinderFile = `${findomainDir}afinder2-${url}-${date}.txt`;
     let subfinderFile = `${findomainDir}subfinder-${url}-${date}.txt`;
-    let level1 = `${findomainDir}lvl1-${url}-${date}.txt`;
-    let level2 = `${findomainDir}lvl2-${url}-${date}.txt`;
+    let gobusterFile = `${findomainDir}gobuster-${url}-${date}.txt`;
+    let amassFile = `${findomainDir}amass-${url}-${date}.txt`;
+    let allaltFile = `${findomainDir}all-altdns-${url}-${date}.txt`;
+    let auxresaltFile = `${findomainDir}aux-altdns-${url}-${date}.txt`;
+    let resaltFile = `${findomainDir}altdns-${url}-${date}.txt`;
+    let gitFile = `${findomainDir}git-${url}-${date}.txt`;
+
     let file = `${findomainDir}subdomains-${url}-${date}.txt`;
 
 
@@ -114,30 +129,41 @@ function executeFindomain(scope, program, programDir){
     try{
 
         var findoSyntax = `findomain -t ${url} -u ${findoFile}`;
-        var subfinderSyntax = `subfinder -d ${url} -o ${subfinderFile}`;
+        var subfinderSyntax = `subfinder -d ${url} -t 85 -o ${subfinderFile}`;
         var afinderSyntax = `${goDir}assetfinder --subs-only ${url} | tee -a ${afinderFile}`;
+        var gobusterSyntax = `${goDir}gobuster dns -d ${url} -w ${gobusterDict} -t 100 -o ${gobusterFile}`;
+        var amassSyntax = `amass enum -d ${url} -active -o ${amassFile}`;
+        var altdnsSyntax = `altdns -i ${amassFile} -o ${allaltFile} -w ${altdnsDict} -t 100 -r -s ${auxresaltFile}`;
+        var gitSyntax = `${gitTool} -d ${url} -t ${gitToken} | tee -a ${gitFile}`;
+                
 
-        var lvl2FindomainSyntax = `findomain -f ${level1} -u ${lvl2FindoFile}`;
-        var lvl2AfinderSyntax = `cat ${level1} | ${goDir}assetfinder --subs-only | tee -a ${lvl2AfinderFile}`;
-
-        var lvl3SubfinderSyntax = `subfinder -dL ${level2} -t 85 -timeout 15 -o ${file}`;
 
         shell.exec(findoSyntax);
         shell.exec(subfinderSyntax);
         shell.exec(afinderSyntax);
-        shell.exec(`cat ${findoFile} ${subfinderFile} ${afinderFile} >> ${level1}`);
-        shell.exec(`sort -u ${level1} -o ${level1}`);
-        shell.exec(lvl2FindomainSyntax);
-        shell.exec(lvl2AfinderSyntax);
-        shell.exec(`cat ${lvl2FindoFile} ${lvl2AfinderFile} >> ${level2}`);
-        shell.exec(`sort -u ${level2} -o ${level2}`);
-        shell.exec(lvl3SubfinderSyntax);
+        shell.exec(gobusterSyntax);
+        shell.exec(amassSyntax);
+        shell.exec(altdnsSyntax);
+
+        var altdnsReadFile = fs.readFileSync(auxresaltFile, 'UTF-8');
+        var altdnsArray = altdnsReadFile.split('\n');
+
+        altdnsArray.forEach(elem => {
+
+            fs.appendFileSync(resaltFile,elem.split(':')[0]+'\n');
+            
+        })
+
+        shell.exec(`rm ${allaltFile} ${auxresaltFile}`);
+
+        shell.exec(gitSyntax);
+
+        shell.exec(`cat ${findoFile} ${subfinderFile} ${afinderFile} ${gobusterFile} ${amassFile} ${resaltFile} ${gitFile} >> ${file}`);
         shell.exec(`sort -u ${file} -o ${file}`);
-        shell.exec(`rm -r ${findoFile} ${subfinderFile} ${afinderFile} ${lvl2FindoFile} ${lvl2AfinderFile} ${level1} ${level2}`);
 
         saveSubdomains(program, findomainDir, file, url);
 
-        return lvl3SubfinderSyntax;
+        return findoSyntax;
     }
     catch(err){
         console.log(err);
