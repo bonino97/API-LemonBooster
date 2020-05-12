@@ -161,6 +161,8 @@ function executeFindomain(scope, program, programDir){
         shell.exec(`cat ${findoFile} ${subfinderFile} ${afinderFile} ${gobusterFile} ${amassFile} ${resaltFile} ${gitFile} >> ${file}`);
         shell.exec(`sort -u ${file} -o ${file}`);
 
+        shell.exec(`rm ${findoFile} ${subfinderFile} ${afinderFile} ${gobusterFile} ${amassFile} ${resaltFile} ${gitFile}`);
+
         saveSubdomains(program, findomainDir, file, url);
 
         return findoSyntax;
