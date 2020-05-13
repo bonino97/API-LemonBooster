@@ -290,7 +290,7 @@ function executeSidebarLinkFinder (req, res){
 
 function saveSingleLinkfinderDirectory(){
 
-    let singleDir = `./results/SingleTools/`;
+    let singleDir = `../LemonBooster-Results/SingleTools/`;
     let linkfinderDir = `${singleDir}LinkFinder/`    
 
     if( fs.existsSync(singleDir) ){

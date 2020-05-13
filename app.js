@@ -113,8 +113,7 @@ var server = app.listen(3000, () => {
     console.log('Backend: lemon-booster ~ Online');
 });
 
-server.setTimeout(10800000);
-
+server.timeout(10800000);
 ///#############################################################################
 //                              END BACKEND LISTENING
 ///#############################################################################

@@ -403,7 +403,7 @@ function saveSingleDirsearchDirectory(){
 
     try {
 
-        let singleDir = `./results/SingleTools/`;
+        let singleDir = `../LemonBooster-Results/SingleTools/`;
         let dirsearchDir = `${singleDir}Dirsearch/`    
     
         if( fs.existsSync(singleDir) ){

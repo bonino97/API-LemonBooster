@@ -83,7 +83,7 @@ function executeSidebarJsearch (req, res){
 
 function saveSingleJsearchDirectory(){
 
-    let singleDir = `./results/SingleTools/`;
+    let singleDir = `../LemonBooster-Results/SingleTools/`;
     let jsearchDir = `${singleDir}JSearch/`    
 
     if( fs.existsSync(singleDir) ){

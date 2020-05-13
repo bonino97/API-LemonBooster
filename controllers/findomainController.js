@@ -275,7 +275,7 @@ function executeSidebarFindomain (req, res){
 
 function saveSingleFindomainDirectory(){
 
-    let singleDir = `./results/SingleTools/`;
+    let singleDir = `../LemonBooster-Results/SingleTools/`;
     let findomainDir = `${singleDir}Findomain/`    
 
     if( fs.existsSync(singleDir) ){

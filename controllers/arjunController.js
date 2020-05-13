@@ -124,7 +124,7 @@ function executeSidebarArjun (req, res){
 
 function saveSingleArjunDirectory(){
 
-    let singleDir = `./results/SingleTools/`;
+    let singleDir = `../LemonBooster-Results/SingleTools/`;
     let arjunDir = `${singleDir}Arjun/`    
 
     if( fs.existsSync(singleDir) ){
